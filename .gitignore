@@ -1,3 +1,10 @@
+
+## my ignore list
+vender/SFML-2.5.1
+bin/
+bin-int/
+.vs/
+
 # Prerequisites
 *.d
 
