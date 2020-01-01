@@ -42,9 +42,3 @@ addnl linking dirs	: $(ProjectDir)vender/SFML-2.5.1/lib
 
 #ifdef __linux__ // LINUX
 #endif
-
-
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/Audio.hpp>
