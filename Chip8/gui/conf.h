@@ -24,7 +24,7 @@ margin		++------------------------------------------++
 #define MARGIN 10
 
 #define TAB_HEIGHT  40
-#define TAB_WIDTH   80
+#define TAB_WIDTH   200
 
 #define PIXEL_SIZE  10
 #define WIDTH_PIX   64
@@ -47,3 +47,4 @@ margin		++------------------------------------------++
 
 // colors
 #define BG_COLOR sf::Color(32,42,52)
+#define TAB_TITLE_COLOR sf::Color::White
