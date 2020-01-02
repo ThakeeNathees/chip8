@@ -8,10 +8,18 @@
 class Tab
 {
 public:
+	Tab() {
+		m_font.loadFromFile(FONT_PATH);
+		m_text.setFont(m_font); m_text.setCharacterSize(FONT_SIZE);
+	}
 	virtual void handleEvent(sf::Event& event) = 0;
 	virtual void process() = 0;
 	virtual void render(sf::RenderWindow& window) = 0;
 	virtual std::string getTitle() = 0;
+protected:
+	sf::Font m_font;
+	sf::Text m_text;
+
 };
 
 class HelpTab : public Tab
@@ -42,7 +50,7 @@ private:
 	sf::Vector2f getHexPosition();
 	sf::Vector2f getRegPosition();
 	void drawPixels(sf::RenderWindow& window);
-	bool m_is_drawgrid = false;
+	bool m_is_drawgrid = true;
 };
 
 class AssemblerTab : public Tab
@@ -54,13 +62,20 @@ public:
 	virtual std::string getTitle() override { return std::string("Assembler (F3)"); }
 };
 
+#define ROM_SIZE 0x1000
 class DisassemblerTab : public Tab
 {
 public:
 	virtual void handleEvent(sf::Event& event) override {}
 	virtual void process() override {}
-	virtual void render(sf::RenderWindow& window) override {}
+	virtual void render(sf::RenderWindow& window) override;
 	virtual std::string getTitle() override { return std::string("Disssembler (F4)"); }
+
+private:
+	char m_bytes[ROM_SIZE] = {0};
+	sf::Vector2f getHexPosition();
+	sf::Vector2f getDisasPosition();
+	sf::Vector2f getInfoPosition();
 };
 
 class TabView 
@@ -111,7 +126,6 @@ public:
 
 private:
 	sf::Font m_font;
-
 	int m_current_tab;
 	std::vector<Tab*> m_tabs;
 	

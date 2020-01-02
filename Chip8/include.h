@@ -6,6 +6,9 @@
 #include <SFML/Audio.hpp>
 
 #include <iostream>
+#include <sstream>
+#include <string>
+#include <iomanip>
 #include <cstdlib>
 
 #define print(x) std::cout<< x << std::endl;

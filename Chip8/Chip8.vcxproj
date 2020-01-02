@@ -141,7 +141,8 @@
     <ClInclude Include="gui\tabs.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="gui\tabs.cpp" />
+    <ClCompile Include="gui\disassembler_tab.cpp" />
+    <ClCompile Include="gui\emulator_tab.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
