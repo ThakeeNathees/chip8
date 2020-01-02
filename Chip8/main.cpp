@@ -1,15 +1,9 @@
 #include "linker.h"
-
-
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/Audio.hpp>
+#include "include.h"
 
 #include "gui/tabs.h"
 
-#include <iostream>
-#include <cstdlib>
+
 
 
 
@@ -32,12 +26,15 @@ int main()
 				if (event.key.code == sf::Keyboard::Key::F2) tab_view.setEmulatorTab();
 				if (event.key.code == sf::Keyboard::Key::F3) tab_view.setAssemblerTab();
 				if (event.key.code == sf::Keyboard::Key::F4) tab_view.setDisassemblerTab();
+
+				if (event.key.code == sf::Keyboard::Key::G) tab_view.getEmulatorTab()->setGrid();
 			}
 			if (event.type == sf::Event::Closed)
 				window.close();
 		}
 
 		tab_view.render(window);
+		tab_view.getEmulatorTab()->setPixel( rand()%64, rand() % 32, rand() % 2);
 
 		window.display();
 	}

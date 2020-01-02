@@ -1,9 +1,5 @@
 #pragma once
-
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/Audio.hpp>
+#include "include.h"
 
 inline void drawVertexLine(sf::RenderTarget& render_target, sf::Vector2f point1, sf::Vector2f point2, sf::Color color = sf::Color::White) {
 	sf::VertexArray line(sf::LinesStrip, 2);

@@ -1,20 +1,16 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/Audio.hpp>
+#include "include.h"
 
 #include "utils.h"
 #include "conf.h"
-
 
 class Tab
 {
 public:
 	virtual void handleEvent(sf::Event& event) = 0;
 	virtual void process() = 0;
-	virtual void render() = 0;
+	virtual void render(sf::RenderWindow& window) = 0;
 	virtual std::string getTitle() = 0;
 };
 
@@ -23,7 +19,7 @@ class HelpTab : public Tab
 public:
 	virtual void handleEvent(sf::Event& event) override {}
 	virtual void process() override {}
-	virtual void render() override {}
+	virtual void render(sf::RenderWindow& window) override {}
 	virtual std::string getTitle() override { return std::string("Help (F1)"); }
 
 };
@@ -33,8 +29,20 @@ class EmulatorTab : public Tab
 public:
 	virtual void handleEvent(sf::Event& event) override {}
 	virtual void process() override {}
-	virtual void render() override {}
+	virtual void render(sf::RenderWindow& window) override;
 	virtual std::string getTitle() override { return std::string("Emulator (F2)"); }
+
+	void setGrid() { m_is_drawgrid = !m_is_drawgrid; }
+	void setPixel(unsigned int x, unsigned y, bool on = true) { /* todo: assert range */ m_pixels[y][x] = on; }
+private:
+	bool m_pixels[HEIGHT_PIX][WIDTH_PIX];
+	void drawGrid(sf::RenderWindow& window);
+	sf::Vector2f getDispPosition();
+	sf::Vector2f getDisasPosition();
+	sf::Vector2f getHexPosition();
+	sf::Vector2f getRegPosition();
+	void drawPixels(sf::RenderWindow& window);
+	bool m_is_drawgrid = false;
 };
 
 class AssemblerTab : public Tab
@@ -42,7 +50,7 @@ class AssemblerTab : public Tab
 public:
 	virtual void handleEvent(sf::Event& event) override {}
 	virtual void process() override {}
-	virtual void render() override {}
+	virtual void render(sf::RenderWindow& window) override {}
 	virtual std::string getTitle() override { return std::string("Assembler (F3)"); }
 };
 
@@ -51,7 +59,7 @@ class DisassemblerTab : public Tab
 public:
 	virtual void handleEvent(sf::Event& event) override {}
 	virtual void process() override {}
-	virtual void render() override {}
+	virtual void render(sf::RenderWindow& window) override {}
 	virtual std::string getTitle() override { return std::string("Disssembler (F4)"); }
 };
 
@@ -83,23 +91,22 @@ public:
 		drawTabBorder(window);
 		drawHorizontalLine(window);
 		drawTabTitle(window);
+		getCurrentTab()->render(window);
 	}
 
-	void setHelpTab() {
-		m_current_tab = 0;
-	}
-	void setEmulatorTab() {
-		m_current_tab = 1;
-	}
-	void setAssemblerTab() {
-		m_current_tab = 2;
-	}
-	void setDisassemblerTab() {
-		m_current_tab = 3;
-	}
+	void setHelpTab() { m_current_tab = 0; }
+	void setEmulatorTab() { m_current_tab = 1; }
+	void setAssemblerTab() { m_current_tab = 2; }
+	void setDisassemblerTab() { m_current_tab = 3; }
 
-	int getCurrentTab() {
-		return m_current_tab;
+	HelpTab* getHelpTab() { return  static_cast<HelpTab*>(m_tabs[0]); }
+	EmulatorTab* getEmulatorTab() { return  static_cast<EmulatorTab*>(m_tabs[1]); }
+	AssemblerTab* getAssemblerTab() { return  static_cast<AssemblerTab*>(m_tabs[2]); }
+	DisassemblerTab* getDisassemblerTab() { return  static_cast<DisassemblerTab*>(m_tabs[3]); }
+
+
+	Tab* getCurrentTab() {
+		return m_tabs[m_current_tab];
 	}
 
 private:
@@ -112,22 +119,24 @@ private:
 private:
 	void drawTabBorder( sf::RenderWindow& window) {
 		for (int tab_no = 0; tab_no < m_tabs.size(); tab_no++) {
-			drawVertexLine(window, sf::Vector2f(MARGIN + TAB_WIDTH * tab_no, MARGIN + TAB_HEIGHT), sf::Vector2f(MARGIN + TAB_WIDTH * tab_no, MARGIN));
-			drawVertexLine(window, sf::Vector2f(MARGIN + TAB_WIDTH * tab_no, MARGIN), sf::Vector2f(MARGIN + TAB_WIDTH * (tab_no + 1), MARGIN));
-			drawVertexLine(window, sf::Vector2f(MARGIN + TAB_WIDTH * (tab_no + 1), MARGIN), sf::Vector2f(MARGIN + TAB_WIDTH * (tab_no + 1), MARGIN + TAB_HEIGHT));
+			drawVertexLine(window, sf::Vector2f(MARGIN + TAB_WIDTH * tab_no, MARGIN + TAB_HEIGHT), sf::Vector2f(MARGIN + TAB_WIDTH * tab_no, MARGIN), BORDER_COLOR);
+			drawVertexLine(window, sf::Vector2f(MARGIN + TAB_WIDTH * tab_no, MARGIN), sf::Vector2f(MARGIN + TAB_WIDTH * (tab_no + 1), MARGIN), BORDER_COLOR);
+			drawVertexLine(window, sf::Vector2f(MARGIN + TAB_WIDTH * (tab_no + 1), MARGIN), sf::Vector2f(MARGIN + TAB_WIDTH * (tab_no + 1), MARGIN + TAB_HEIGHT), BORDER_COLOR);
 		}
 	}
 	void drawHorizontalLine(sf::RenderWindow& window) {
-		drawVertexLine(window, sf::Vector2f(MARGIN, MARGIN + TAB_HEIGHT), sf::Vector2f(MARGIN + TAB_WIDTH * m_current_tab, MARGIN + TAB_HEIGHT));
-		drawVertexLine(window, sf::Vector2f(MARGIN + TAB_WIDTH * (m_current_tab + 1), MARGIN + TAB_HEIGHT), sf::Vector2f(WINDOW_WIDTH - MARGIN, MARGIN + TAB_HEIGHT));
+		drawVertexLine(window, sf::Vector2f(MARGIN, MARGIN + TAB_HEIGHT), sf::Vector2f(MARGIN + TAB_WIDTH * m_current_tab, MARGIN + TAB_HEIGHT),BORDER_COLOR);
+		drawVertexLine(window, sf::Vector2f(MARGIN + TAB_WIDTH * (m_current_tab + 1), MARGIN + TAB_HEIGHT), sf::Vector2f(WINDOW_WIDTH - MARGIN, MARGIN + TAB_HEIGHT), BORDER_COLOR);
 	}
 
 	void drawTabTitle(sf::RenderWindow& window) {
 		sf::Text title; title.setFont(m_font);
-		title.setFillColor(TAB_TITLE_COLOR); title.setCharacterSize(10);
+		title.setCharacterSize(TAB_TITLE_SIZE);
 		for (int i = 0; i < m_tabs.size(); i++) {
+			if (m_current_tab == i) title.setFillColor(TAB_SELECTED_TITLE_COLOR); 
+			else title.setFillColor(TAB_TITLE_COLOR);
 			title.setString(m_tabs[i]->getTitle());
-			title.setPosition(sf::Vector2f(MARGIN + i*TAB_WIDTH, MARGIN)+sf::Vector2f(MARGIN, MARGIN));
+			title.setPosition(sf::Vector2f(MARGIN + i*TAB_WIDTH, MARGIN)+sf::Vector2f(MARGIN, TAB_HEIGHT/2 - TAB_TITLE_SIZE/2));
 			window.draw(title);
 		}
 	}

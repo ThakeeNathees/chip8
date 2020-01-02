@@ -22,6 +22,9 @@ margin		++------------------------------------------++
 
 // sizes
 #define MARGIN 10
+#define BORDER_SIZE 1
+
+#define TAB_TITLE_SIZE 10
 
 #define TAB_HEIGHT  40
 #define TAB_WIDTH   200
@@ -46,5 +49,13 @@ margin		++------------------------------------------++
 #define REG_INFO_HEIGHT HEXDUMP_HEIGHT
 
 // colors
+#define COLOR_NONE sf::Color(0,0,0,0)
+#define BORDER_COLOR sf::Color::White
 #define BG_COLOR sf::Color(32,42,52)
-#define TAB_TITLE_COLOR sf::Color::White
+
+#define DISPLAY_BG_COLOR  sf::Color(143, 143, 133)
+#define PIX_COLOR sf::Color::Black
+#define DISPLAY_GRID_COLOR sf::Color::Black
+
+#define TAB_TITLE_COLOR sf::Color(200,200,200)
+#define TAB_SELECTED_TITLE_COLOR sf::Color(200,165,0)
