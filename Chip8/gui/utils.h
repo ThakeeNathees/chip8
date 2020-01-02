@@ -40,16 +40,11 @@ inline void drawScrollBar(sf::RenderTarget& render_target, sf::Vector2f position
 }
 
 
-inline std::string toHexString(char value) {
-
+inline std::string toHexString(unsigned int value, unsigned int fill = 2) {
 	std::string hexStr;
-
-	/// integer value to hex-string
 	std::stringstream sstream;
-	sstream << std::setfill('0') << std::setw(2) << std::hex << (int)value;
-
+	sstream << std::setfill('0') << std::setw(fill) << std::hex << (unsigned int)value;
 	hexStr = sstream.str();
-	sstream.clear();    //clears out the stream-string
-
+	sstream.clear();
 	return hexStr;
 }

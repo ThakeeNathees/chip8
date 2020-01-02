@@ -26,6 +26,9 @@
 #define TAB_TITLE_COLOR sf::Color(200,200,200)
 #define TAB_SELECTED_TITLE_COLOR sf::Color(200,165,0)
 
+#define F4_CURSOR_COLOR sf::Color::White
+#define BYTES_COLOR sf::Color::White
+#define SELECTED_BYTE_COLOR sf::Color::Black
 
 /* window dimension emulation
 
@@ -89,3 +92,7 @@ margin		++------------------------------------------++
 
 #define F4_DISAS_WIDTH  WINDOW_WIDTH - ( MARGIN + F4_HEXDUMP_WIDTH + MARGIN + /* disas */ + MARGIN )
 #define F4_DISAS_HEIGHT F4_HEXDUMP_HEIGHT
+
+#define F4_HEX_BYTE_SPACEING 20
+#define F4_DISAS_HEX_LINE_SPACEING 5
+#define F4_DISAS_HEX_BYTE_PER_LNE 0x8

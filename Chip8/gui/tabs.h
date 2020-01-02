@@ -66,13 +66,19 @@ public:
 class DisassemblerTab : public Tab
 {
 public:
-	virtual void handleEvent(sf::Event& event) override {}
+	DisassemblerTab() {
+		for (int i = 0; i < ROM_SIZE; i++)
+			m_bytes[i] = i;
+		
+	}
+	virtual void handleEvent(sf::Event& event) override;
 	virtual void process() override {}
 	virtual void render(sf::RenderWindow& window) override;
 	virtual std::string getTitle() override { return std::string("Disssembler (F4)"); }
 
 private:
-	char m_bytes[ROM_SIZE] = {0};
+	unsigned int m_cursor_pos = 0;
+	unsigned char m_bytes[ROM_SIZE] = {0};
 	sf::Vector2f getHexPosition();
 	sf::Vector2f getDisasPosition();
 	sf::Vector2f getInfoPosition();

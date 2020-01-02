@@ -22,6 +22,9 @@ int main()
 		while (window.pollEvent(event))
 		{
 			if (event.type == sf::Event::KeyPressed) {
+
+				tab_view.getCurrentTab()->handleEvent(event);
+
 				if (event.key.code == sf::Keyboard::Key::F1) tab_view.setHelpTab();
 				if (event.key.code == sf::Keyboard::Key::F2) tab_view.setEmulatorTab();
 				if (event.key.code == sf::Keyboard::Key::F3) tab_view.setAssemblerTab();
