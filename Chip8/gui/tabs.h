@@ -8,17 +8,10 @@
 class Tab
 {
 public:
-	Tab() {
-		m_font.loadFromFile(FONT_PATH);
-		m_text.setFont(m_font); m_text.setCharacterSize(FONT_SIZE);
-	}
 	virtual void handleEvent(sf::Event& event) = 0;
 	virtual void process() = 0;
 	virtual void render(sf::RenderWindow& window) = 0;
 	virtual std::string getTitle() = 0;
-protected:
-	sf::Font m_font;
-	sf::Text m_text;
 
 };
 
@@ -26,7 +19,7 @@ class HelpTab : public Tab
 {
 public:
 	virtual void handleEvent(sf::Event& event) override {}
-	virtual void process() override {}
+	virtual void process() override {};
 	virtual void render(sf::RenderWindow& window) override {}
 	virtual std::string getTitle() override { return std::string("Help (F1)"); }
 
@@ -35,8 +28,8 @@ public:
 class EmulatorTab : public Tab
 {
 public:
-	virtual void handleEvent(sf::Event& event) override {}
-	virtual void process() override {}
+	virtual void handleEvent(sf::Event& event);
+	virtual void process() override;
 	virtual void render(sf::RenderWindow& window) override;
 	virtual std::string getTitle() override { return std::string("Emulator (F2)"); }
 
@@ -44,6 +37,9 @@ public:
 	void setPixel(unsigned int x, unsigned y, bool on = true) { /* todo: assert range */ m_pixels[y][x] = on; }
 private:
 	bool m_pixels[HEIGHT_PIX][WIDTH_PIX];
+	unsigned int m_hex_cursor = 0;
+	unsigned char m_hex_bytes[ROM_SIZE] = {0};
+
 	void drawGrid(sf::RenderWindow& window);
 	sf::Vector2f getDispPosition();
 	sf::Vector2f getDisasPosition();
@@ -62,7 +58,6 @@ public:
 	virtual std::string getTitle() override { return std::string("Assembler (F3)"); }
 };
 
-#define ROM_SIZE 0x1000
 class DisassemblerTab : public Tab
 {
 public:
@@ -77,6 +72,8 @@ public:
 	virtual std::string getTitle() override { return std::string("Disssembler (F4)"); }
 
 private:
+	int m_state = 0; // 0 = normal , 1 = file popup window
+	bool m_second_byte = false; // when press any key 0-9 a-f -> is the key first or second
 	unsigned int m_cursor_pos = 0;
 	unsigned char m_bytes[ROM_SIZE] = {0};
 	sf::Vector2f getHexPosition();
@@ -104,7 +101,14 @@ public:
 	}
 
 	void handleEvent(sf::Event& event) {
-
+		if (event.type == sf::Event::KeyPressed) {
+			if (event.key.code == sf::Keyboard::Key::Tab) setTab( m_current_tab+1 );
+			if (event.key.code == sf::Keyboard::Key::F1) setHelpTab();
+			if (event.key.code == sf::Keyboard::Key::F2) setEmulatorTab();
+			if (event.key.code == sf::Keyboard::Key::F3) setAssemblerTab();
+			if (event.key.code == sf::Keyboard::Key::F4) setDisassemblerTab();
+		}
+		getCurrentTab()->handleEvent(event);
 	}
 
 	void render(sf::RenderWindow& window) {
@@ -113,6 +117,10 @@ public:
 		drawHorizontalLine(window);
 		drawTabTitle(window);
 		getCurrentTab()->render(window);
+	}
+
+	void setTab(unsigned int tab_no) {
+		m_current_tab = tab_no % m_tabs.size();
 	}
 
 	void setHelpTab() { m_current_tab = 0; }

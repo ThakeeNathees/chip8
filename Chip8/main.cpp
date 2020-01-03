@@ -3,16 +3,17 @@
 
 #include "gui/tabs.h"
 
-
-
+// static fields
+sf::Font Res::s_font;
+sf::Text Res::s_text;
 
 
 int main()
 {
+	Res::init();
+
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Chip8");
 
-	// sf::Font font;
-	// font.loadFromFile("res/font/PressStart2P-Regular.ttf");
 
 	TabView tab_view;
 
@@ -21,17 +22,7 @@ int main()
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
-			if (event.type == sf::Event::KeyPressed) {
-
-				tab_view.getCurrentTab()->handleEvent(event);
-
-				if (event.key.code == sf::Keyboard::Key::F1) tab_view.setHelpTab();
-				if (event.key.code == sf::Keyboard::Key::F2) tab_view.setEmulatorTab();
-				if (event.key.code == sf::Keyboard::Key::F3) tab_view.setAssemblerTab();
-				if (event.key.code == sf::Keyboard::Key::F4) tab_view.setDisassemblerTab();
-
-				if (event.key.code == sf::Keyboard::Key::G) tab_view.getEmulatorTab()->setGrid();
-			}
+			tab_view.handleEvent(event);
 			if (event.type == sf::Event::Closed)
 				window.close();
 		}

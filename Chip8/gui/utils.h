@@ -48,3 +48,64 @@ inline std::string toHexString(unsigned int value, unsigned int fill = 2) {
 	sstream.clear();
 	return hexStr;
 }
+inline float drawHexDump(sf::RenderWindow& window, sf::Vector2f draw_pos, unsigned char bytes[], unsigned int bytes_per_line, float window_height, unsigned int cursor_pos = 0) 
+{
+	unsigned int line_spacing	= HEX_LINE_SPACEING;
+	sf::Color cursor_color		= F4_CURSOR_COLOR;
+	float byte_spacing			= HEX_BYTE_SPACEING;
+
+	// draw bytes loop
+	static unsigned int line_offset = 0;
+	unsigned int total_lines = ROM_SIZE / bytes_per_line;
+	unsigned int lines = (window_height - 2 * FONT_SIZE) / (FONT_SIZE + line_spacing);
+	unsigned int cursor_line = cursor_pos / bytes_per_line;
+	if (cursor_line >= lines + line_offset) line_offset = cursor_line - lines + 1;
+	if (cursor_line < line_offset) line_offset = cursor_line;
+
+			float scroll_p = (float)cursor_line / (float)total_lines;
+
+	sf::Vector2f pos = draw_pos + sf::Vector2f(MARGIN, MARGIN);
+	sf::RectangleShape cursor(sf::Vector2f(FONT_SIZE * 2, FONT_SIZE));
+	cursor.setFillColor(cursor_color);
+
+	// draw title offset
+	Res::s_text.setFillColor(BYTES_COLOR);
+	pos += sf::Vector2f(FONT_SIZE + byte_spacing * 4, 0);
+	for (unsigned int i = 0; i < bytes_per_line; i++) {
+		Res::s_text.setString(toHexString(i)); Res::s_text.setPosition(pos); window.draw(Res::s_text);
+		pos += sf::Vector2f(FONT_SIZE + byte_spacing, 0);
+	}
+	// draw title border line
+	drawVertexLine(window, sf::Vector2f(draw_pos.x + MARGIN, pos.y + FONT_SIZE + line_spacing * 2), sf::Vector2f(pos.x, pos.y + FONT_SIZE + line_spacing * 2), BORDER_COLOR);
+	drawVertexLine(window, sf::Vector2f(draw_pos.x + FONT_SIZE + byte_spacing * 4, pos.y + FONT_SIZE + line_spacing * 2), sf::Vector2f(draw_pos.x + FONT_SIZE + byte_spacing * 4, draw_pos.y + window_height - MARGIN), BORDER_COLOR);
+	pos = sf::Vector2f(draw_pos.x + MARGIN, pos.y + FONT_SIZE + line_spacing*3);
+
+	for (unsigned int i = bytes_per_line * line_offset; i < lines * bytes_per_line + bytes_per_line * line_offset; i++) { // TODO: MAX LINE NO -> min(total lines, claculated)
+
+		// draw address
+		Res::s_text.setFillColor(BYTES_COLOR);
+		if (i % bytes_per_line == 0) {
+			Res::s_text.setString(toHexString(i, 4));
+			Res::s_text.setPosition(pos);
+			window.draw(Res::s_text);
+			pos += sf::Vector2f(FONT_SIZE + byte_spacing * 4, 0);
+		}
+
+		// draw bytes
+		Res::s_text.setString(toHexString(bytes[i]));
+		Res::s_text.setPosition(pos);
+
+		if (i == cursor_pos) { // draw cursor
+			Res::s_text.setFillColor(SELECTED_BYTE_COLOR);
+			cursor.setPosition(Res::s_text.getPosition());
+			window.draw(cursor);
+		}
+		window.draw(Res::s_text);
+
+		if (i % bytes_per_line == bytes_per_line - 1) {
+			pos = sf::Vector2f(draw_pos.x + MARGIN, pos.y + FONT_SIZE + line_spacing);
+		}
+		else pos += sf::Vector2f(FONT_SIZE + byte_spacing, 0);
+	}
+	return scroll_p;
+}

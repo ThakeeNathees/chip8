@@ -11,15 +11,108 @@ sf::Vector2f DisassemblerTab::getInfoPosition() {
 }
 
 void DisassemblerTab::handleEvent(sf::Event& event) {
-	if (event.type == sf::Event::KeyPressed) {
-		if (event.key.code == sf::Keyboard::Right && m_cursor_pos < ROM_SIZE-1) m_cursor_pos++;
-		if (event.key.code == sf::Keyboard::Left && m_cursor_pos > 0) m_cursor_pos--;
-		if (event.key.code == sf::Keyboard::Down) {
-			if (m_cursor_pos + F4_DISAS_HEX_BYTE_PER_LNE < ROM_SIZE) m_cursor_pos += F4_DISAS_HEX_BYTE_PER_LNE;
+	
+	// normal mode key bind
+	if (event.type == sf::Event::KeyPressed && m_state == 0) {
+		
+		// navigation
+		if (event.key.code == sf::Keyboard::Right && m_cursor_pos < ROM_SIZE - 1) { m_cursor_pos++; m_second_byte = false; }
+		else if (event.key.code == sf::Keyboard::Left && m_cursor_pos > 0) { m_cursor_pos--; m_second_byte = false; }
+		else if (event.key.code == sf::Keyboard::Down) {
+			if (m_cursor_pos + F4_HEX_BYTE_PER_LNE < ROM_SIZE) m_cursor_pos += F4_HEX_BYTE_PER_LNE;
+			m_second_byte = false;
 		}
-		if (event.key.code == sf::Keyboard::Up) {
-			if (m_cursor_pos >= F4_DISAS_HEX_BYTE_PER_LNE ) m_cursor_pos -= F4_DISAS_HEX_BYTE_PER_LNE;
+		else if (event.key.code == sf::Keyboard::Up) {
+			if (m_cursor_pos >= F4_HEX_BYTE_PER_LNE ) m_cursor_pos -= F4_HEX_BYTE_PER_LNE;
+			m_second_byte = false;
 		}
+		else if (event.key.code == sf::Keyboard::PageUp) {
+			if (m_cursor_pos >= F4_HEX_BYTE_PER_LNE * F4_PAGEUPDOWN_LINES )
+				m_cursor_pos -= F4_HEX_BYTE_PER_LNE * F4_PAGEUPDOWN_LINES;
+		}
+		else if (event.key.code == sf::Keyboard::PageDown) {
+			if (m_cursor_pos + F4_HEX_BYTE_PER_LNE * F4_PAGEUPDOWN_LINES < ROM_SIZE)
+				m_cursor_pos += F4_HEX_BYTE_PER_LNE * F4_PAGEUPDOWN_LINES;
+		}
+		else if (event.key.code == sf::Keyboard::Home) {
+				m_cursor_pos = 0;
+		}
+		else if (event.key.code == sf::Keyboard::End) {
+			m_cursor_pos = ROM_SIZE - 1;
+		}
+
+		// hex write 
+		else if (event.key.code == sf::Keyboard::Num0 || event.key.code == sf::Keyboard::Numpad0) {
+			if (!m_second_byte) { m_bytes[m_cursor_pos] = 0x00 | (m_bytes[m_cursor_pos] & 0x0f); m_second_byte = true; }
+			else { m_bytes[m_cursor_pos] = 0x00 | (m_bytes[m_cursor_pos] & 0xf0); m_second_byte = false; m_cursor_pos++; }
+		}
+		else if (event.key.code == sf::Keyboard::Num1 || event.key.code == sf::Keyboard::Numpad1) {
+			if (!m_second_byte) { m_bytes[m_cursor_pos] = 0x10 | (m_bytes[m_cursor_pos] & 0x0f); m_second_byte = true; }
+			else { m_bytes[m_cursor_pos] = 0x01 | (m_bytes[m_cursor_pos] & 0xf0); m_second_byte = false; m_cursor_pos++; }
+		}
+		else if (event.key.code == sf::Keyboard::Num2 || event.key.code == sf::Keyboard::Numpad2) {
+			if (!m_second_byte) { m_bytes[m_cursor_pos] = 0x20 | (m_bytes[m_cursor_pos] & 0x0f); m_second_byte = true; }
+			else { m_bytes[m_cursor_pos] = 0x02 | (m_bytes[m_cursor_pos] & 0xf0); m_second_byte = false; m_cursor_pos++; }
+		}
+		else if (event.key.code == sf::Keyboard::Num3 || event.key.code == sf::Keyboard::Numpad3) {
+			if (!m_second_byte) { m_bytes[m_cursor_pos] = 0x30 | (m_bytes[m_cursor_pos] & 0x0f); m_second_byte = true; }
+			else { m_bytes[m_cursor_pos] = 0x03 | (m_bytes[m_cursor_pos] & 0xf0); m_second_byte = false; m_cursor_pos++; }
+		}
+		else if (event.key.code == sf::Keyboard::Num4 || event.key.code == sf::Keyboard::Numpad4) {
+			if (!m_second_byte) { m_bytes[m_cursor_pos] = 0x40 | (m_bytes[m_cursor_pos] & 0x0f); m_second_byte = true; }
+			else { m_bytes[m_cursor_pos] = 0x04 | (m_bytes[m_cursor_pos] & 0xf0); m_second_byte = false; m_cursor_pos++; }
+		}
+		else if (event.key.code == sf::Keyboard::Num5 || event.key.code == sf::Keyboard::Numpad5) {
+			if (!m_second_byte) { m_bytes[m_cursor_pos] = 0x50 | (m_bytes[m_cursor_pos] & 0x0f); m_second_byte = true; }
+			else { m_bytes[m_cursor_pos] = 0x05 | (m_bytes[m_cursor_pos] & 0xf0); m_second_byte = false; m_cursor_pos++; }
+		}
+		else if (event.key.code == sf::Keyboard::Num6 || event.key.code == sf::Keyboard::Numpad6) {
+			if (!m_second_byte) { m_bytes[m_cursor_pos] = 0x60 | (m_bytes[m_cursor_pos] & 0x0f); m_second_byte = true; }
+			else { m_bytes[m_cursor_pos] = 0x06 | (m_bytes[m_cursor_pos] & 0xf0); m_second_byte = false; m_cursor_pos++; }
+		}
+		else if (event.key.code == sf::Keyboard::Num7 || event.key.code == sf::Keyboard::Numpad7) {
+			if (!m_second_byte) { m_bytes[m_cursor_pos] = 0x70 | (m_bytes[m_cursor_pos] & 0x0f); m_second_byte = true; }
+			else { m_bytes[m_cursor_pos] = 0x07 | (m_bytes[m_cursor_pos] & 0xf0); m_second_byte = false; m_cursor_pos++; }
+		}
+		else if (event.key.code == sf::Keyboard::Num8 || event.key.code == sf::Keyboard::Numpad8) {
+			if (!m_second_byte) { m_bytes[m_cursor_pos] = 0x80 | (m_bytes[m_cursor_pos] & 0x0f); m_second_byte = true; }
+			else { m_bytes[m_cursor_pos] = 0x08 | (m_bytes[m_cursor_pos] & 0xf0); m_second_byte = false; m_cursor_pos++; }
+		}
+		else if (event.key.code == sf::Keyboard::Num9 || event.key.code == sf::Keyboard::Numpad9) {
+			if (!m_second_byte) { m_bytes[m_cursor_pos] = 0x90 | (m_bytes[m_cursor_pos] & 0x0f); m_second_byte = true; }
+			else { m_bytes[m_cursor_pos] = 0x09 | (m_bytes[m_cursor_pos] & 0xf0); m_second_byte = false; m_cursor_pos++; }
+		}
+
+		else if (event.key.code == sf::Keyboard::A) {
+			if (!m_second_byte) { m_bytes[m_cursor_pos] = 0xa0 | (m_bytes[m_cursor_pos] & 0x0f); m_second_byte = true; }
+			else { m_bytes[m_cursor_pos] = 0x0a | (m_bytes[m_cursor_pos] & 0xf0); m_second_byte = false; m_cursor_pos++; }
+		}
+		else if (event.key.code == sf::Keyboard::B) {
+			if (!m_second_byte) { m_bytes[m_cursor_pos] = 0xb0 | (m_bytes[m_cursor_pos] & 0x0f); m_second_byte = true; }
+			else { m_bytes[m_cursor_pos] = 0x0b | (m_bytes[m_cursor_pos] & 0xf0); m_second_byte = false; m_cursor_pos++; }
+		}
+		else if (event.key.code == sf::Keyboard::C) {
+			if (!m_second_byte) { m_bytes[m_cursor_pos] = 0xc0 | (m_bytes[m_cursor_pos] & 0x0f); m_second_byte = true; }
+			else { m_bytes[m_cursor_pos] = 0x0c | (m_bytes[m_cursor_pos] & 0xf0); m_second_byte = false; m_cursor_pos++; }
+		}
+		else if (event.key.code == sf::Keyboard::D) {
+			if (!m_second_byte) { m_bytes[m_cursor_pos] = 0xd0 | (m_bytes[m_cursor_pos] & 0x0f); m_second_byte = true; }
+			else { m_bytes[m_cursor_pos] = 0x0d | (m_bytes[m_cursor_pos] & 0xf0); m_second_byte = false; m_cursor_pos++; }
+		}
+		else if (event.key.code == sf::Keyboard::E) {
+			if (!m_second_byte) { m_bytes[m_cursor_pos] = 0xe0 | (m_bytes[m_cursor_pos] & 0x0f); m_second_byte = true; }
+			else { m_bytes[m_cursor_pos] = 0x0e | (m_bytes[m_cursor_pos] & 0xf0); m_second_byte = false; m_cursor_pos++; }
+		}
+		else if (event.key.code == sf::Keyboard::F) {
+			if (!m_second_byte) { m_bytes[m_cursor_pos] = 0xf0 | (m_bytes[m_cursor_pos] & 0x0f); m_second_byte = true; }
+			else { m_bytes[m_cursor_pos] = 0x0f | (m_bytes[m_cursor_pos] & 0xf0); m_second_byte = false; m_cursor_pos++; }
+		}
+
+		// popup mode key bind
+		if (event.type == sf::Event::KeyPressed && m_state == 1) {
+
+		}
+		
 
 	}
 }
@@ -27,49 +120,8 @@ void DisassemblerTab::handleEvent(sf::Event& event) {
 void DisassemblerTab::render(sf::RenderWindow& window) {
 	// hex
 	drawBorder(window, getHexPosition(), sf::Vector2f(F4_HEXDUMP_WIDTH, F4_HEXDUMP_HEIGHT));
-
-	// draw bytes loop
-	static unsigned int total_lines = ROM_SIZE / F4_DISAS_HEX_BYTE_PER_LNE;
-	static unsigned int line_offset = 0;
-	unsigned int lines = (F4_HEXDUMP_HEIGHT - 2 * FONT_SIZE) / (FONT_SIZE + F4_DISAS_HEX_LINE_SPACEING);
-	unsigned int cursor_line = m_cursor_pos / F4_DISAS_HEX_BYTE_PER_LNE;
-	if (cursor_line >= lines + line_offset) line_offset = cursor_line - lines + 1;
-	if (cursor_line < line_offset) line_offset = cursor_line;
-
-	float scroll_p = (float)cursor_line / (float)total_lines;
-
-	sf::Vector2f pos = getHexPosition()+ sf::Vector2f(MARGIN, MARGIN);
-	sf::RectangleShape cursor(sf::Vector2f(FONT_SIZE * 2, FONT_SIZE));
-	cursor.setFillColor(F4_CURSOR_COLOR);
-	for (unsigned int i = F4_DISAS_HEX_BYTE_PER_LNE * line_offset; i < lines * F4_DISAS_HEX_BYTE_PER_LNE + F4_DISAS_HEX_BYTE_PER_LNE * line_offset; i++) { // TODO: MAX LINE NO -> min(total lines, claculated)
-
-		// draw address
-		m_text.setFillColor(BYTES_COLOR);
-		if (i % F4_DISAS_HEX_BYTE_PER_LNE == 0) {
-			m_text.setString(toHexString(i, 4));
-			m_text.setPosition(pos);
-			window.draw(m_text);
-			pos += sf::Vector2f(FONT_SIZE + F4_HEX_BYTE_SPACEING*4, 0);
-		}
-
-		// draw bytes
-		m_text.setString(toHexString(m_bytes[i]));
-		m_text.setPosition(pos); 
-		
-		if (i == m_cursor_pos) { // draw cursor
-			m_text.setFillColor(SELECTED_BYTE_COLOR);
-			cursor.setPosition(m_text.getPosition());
-			window.draw(cursor);
-		}
-		window.draw(m_text);
-
-		if (i % F4_DISAS_HEX_BYTE_PER_LNE == F4_DISAS_HEX_BYTE_PER_LNE - 1) {
-			pos = sf::Vector2f(getHexPosition().x + MARGIN, pos.y + FONT_SIZE + F4_DISAS_HEX_LINE_SPACEING);
-		}
-		else pos += sf::Vector2f(FONT_SIZE + F4_HEX_BYTE_SPACEING, 0);
-	}
+	float scroll_p = drawHexDump(window, getHexPosition(), m_bytes, F4_HEX_BYTE_PER_LNE, F4_HEXDUMP_HEIGHT, m_cursor_pos);
 	drawScrollBar(window, getHexPosition() + sf::Vector2f(F4_HEXDUMP_WIDTH, 0), F4_HEXDUMP_HEIGHT, scroll_p);
-
 
 
 	// disas
@@ -78,7 +130,7 @@ void DisassemblerTab::render(sf::RenderWindow& window) {
 
 
 	// info
-	m_text.setPosition(getInfoPosition());
-	m_text.setString("Ctrl-O : open new file");
-	window.draw(m_text);
+	Res::s_text.setPosition(getInfoPosition()); Res::s_text.setFillColor(F4_HELP_TEXT_COLOR);
+	Res::s_text.setString("Ctrl-O : open new file");
+	window.draw(Res::s_text);
 }

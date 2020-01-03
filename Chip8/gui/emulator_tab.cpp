@@ -1,6 +1,46 @@
 #include "tabs.h"
 
 
+
+void EmulatorTab::handleEvent(sf::Event& event) {
+	if (event.type == sf::Event::KeyPressed) {
+		if (event.key.code == sf::Keyboard::Key::G) setGrid();
+	}
+}
+
+void EmulatorTab::process() {
+
+}
+
+
+void EmulatorTab::render(sf::RenderWindow& window) {
+
+	// display
+	drawBorder(window, getDispPosition(), sf::Vector2f(F2_DISP_WIDTH, F2_DISP_HEIGHT), DISPLAY_BG_COLOR);
+	drawPixels(window);
+	if (m_is_drawgrid) drawGrid(window);
+
+	// disas
+	drawBorder(window, getDisasPosition(), sf::Vector2f(F2_DISAS_WIDTH, F2_DISAS_HEIGHT));
+	drawScrollBar(window, getDisasPosition() + sf::Vector2f(F2_DISAS_WIDTH, 0), F2_DISAS_HEIGHT, 0);
+
+
+	// hexdump
+	drawBorder(window, getHexPosition(), sf::Vector2f(F2_HEXDUMP_WIDTH, F2_HEXDUMP_HEIGHT));
+	float scroll_p = drawHexDump(window, getHexPosition(), m_hex_bytes, F2_HEX_BYTE_PER_LNE, F2_HEXDUMP_HEIGHT, m_hex_cursor);
+	drawScrollBar(window, getHexPosition() + sf::Vector2f(F2_HEXDUMP_WIDTH, 0), F2_HEXDUMP_HEIGHT, scroll_p);
+
+	// registers
+	int x;
+	x = WINDOW_WIDTH;
+	x = F2_HEXDUMP_WIDTH;
+	x = F2_REG_INFO_WIDTH;
+	drawBorder(window, getRegPosition(), sf::Vector2f(F2_REG_INFO_WIDTH, F2_REG_INFO_HEIGHT));
+
+}
+
+/********************************** PRIVATE METHODS ******************************************************/
+
 sf::Vector2f EmulatorTab::getDispPosition() {
 	return sf::Vector2f(MARGIN, MARGIN + TAB_HEIGHT + MARGIN);
 }
@@ -24,26 +64,6 @@ void EmulatorTab::drawPixels(sf::RenderWindow& window) {
 			window.draw(pix);
 		}
 	}
-}
-
-void EmulatorTab::render(sf::RenderWindow& window) {
-
-	// display
-	drawBorder(window, getDispPosition(), sf::Vector2f(F2_DISP_WIDTH, F2_DISP_HEIGHT), DISPLAY_BG_COLOR);
-	drawPixels(window);
-	if (m_is_drawgrid) drawGrid(window);
-
-	// disas
-	drawBorder(window, getDisasPosition(), sf::Vector2f(F2_DISAS_WIDTH, F2_DISAS_HEIGHT));
-	drawScrollBar(window, getDisasPosition() + sf::Vector2f(F2_DISAS_WIDTH, 0), F2_DISAS_HEIGHT, 0);
-
-
-	// hexdump
-	drawBorder(window, getHexPosition(), sf::Vector2f(F2_HEXDUMP_WIDTH, F2_HEXDUMP_HEIGHT));
-
-	// registers
-	drawBorder(window, getRegPosition(), sf::Vector2f(F2_HEXDUMP_WIDTH, F2_HEXDUMP_HEIGHT));
-
 }
 
 void EmulatorTab::drawGrid(sf::RenderWindow& window) {
