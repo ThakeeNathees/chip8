@@ -48,22 +48,21 @@ inline float drawHexDump(sf::RenderWindow& window, sf::Vector2f draw_pos, unsign
 	// draw bytes loop
 	static unsigned int line_offset = 0;
 	unsigned int total_lines = ROM_SIZE / bytes_per_line;
-	unsigned int lines = (window_height - 2 * FONT_SIZE) / (FONT_SIZE + line_spacing);
+	unsigned int lines = (window_height - 3 * FONT_SIZE) / (FONT_SIZE + line_spacing);
 	unsigned int cursor_line = cursor_pos / bytes_per_line;
 	if (cursor_line >= lines + line_offset) line_offset = cursor_line - lines + 1;
 	if (cursor_line < line_offset) line_offset = cursor_line;
-
-			float scroll_p = (float)cursor_line / (float)total_lines;
+	float scroll_p = (float)cursor_line / (float)total_lines;
 
 	sf::Vector2f pos = draw_pos + sf::Vector2f(MARGIN, MARGIN);
 	sf::RectangleShape cursor(sf::Vector2f(FONT_SIZE * 2, FONT_SIZE));
 	cursor.setFillColor(cursor_color);
 
 	// draw title offset
-	Res::s_text.setFillColor(BYTES_COLOR);
+	Res::setTextColor(BYTES_COLOR);
 	pos += sf::Vector2f(FONT_SIZE + byte_spacing * 4, 0);
 	for (unsigned int i = 0; i < bytes_per_line; i++) {
-		Res::s_text.setString(toHexString(i)); Res::s_text.setPosition(pos); window.draw(Res::s_text);
+		Res::setTextString(toHexString(i)); Res::setTextPosition(pos); window.draw(Res::getText());
 		pos += sf::Vector2f(FONT_SIZE + byte_spacing, 0);
 	}
 	// draw title border line
@@ -74,30 +73,64 @@ inline float drawHexDump(sf::RenderWindow& window, sf::Vector2f draw_pos, unsign
 	for (unsigned int i = bytes_per_line * line_offset; i < lines * bytes_per_line + bytes_per_line * line_offset; i++) { // TODO: MAX LINE NO -> min(total lines, claculated)
 
 		// draw address
-		Res::s_text.setFillColor(BYTES_COLOR);
+		Res::setTextColor(BYTES_COLOR);
 		if (i % bytes_per_line == 0) {
-			Res::s_text.setString(toHexString(i, 4));
-			Res::s_text.setPosition(pos);
-			window.draw(Res::s_text);
+			Res::setTextString(toHexString(i, 4));
+			Res::setTextPosition(pos);
+			window.draw(Res::getText());
 			pos += sf::Vector2f(FONT_SIZE + byte_spacing * 4, 0);
 		}
 
 		// draw bytes
-		Res::s_text.setString(toHexString(bytes[i]));
-		Res::s_text.setPosition(pos);
+		Res::setTextString(toHexString(bytes[i]));
+		Res::setTextPosition(pos);
 
 		if (i == cursor_pos) { // draw cursor
-			Res::s_text.setFillColor(SELECTED_BYTE_COLOR);
-			cursor.setPosition(Res::s_text.getPosition());
+			Res::setTextColor(SELECTED_BYTE_COLOR);
+			cursor.setPosition(Res::getTextPosition());
 			window.draw(cursor);
 		}
-		window.draw(Res::s_text);
+		window.draw(Res::getText());
 
 		if (i % bytes_per_line == bytes_per_line - 1) {
 			pos = sf::Vector2f(draw_pos.x + MARGIN, pos.y + FONT_SIZE + line_spacing);
 		}
 		else pos += sf::Vector2f(FONT_SIZE + byte_spacing, 0);
 	}
+	return scroll_p;
+}
+
+#include "Disassembler.h"
+inline float drawDisassembly(sf::RenderWindow& window, sf::Vector2f draw_pos, const std::vector<Instruction>& instructions, sf::Vector2f window_size, unsigned int cursor_pos) {
+
+	static unsigned int line_offset = 0;
+	unsigned int lines = (window_size.y - 2 * FONT_SIZE) / (FONT_SIZE + DISAS_LINE_SPACING);
+	if (cursor_pos >= lines + line_offset) line_offset = cursor_pos - lines + 1;
+	if (cursor_pos < line_offset) line_offset = cursor_pos;
+	float scroll_p = (float)cursor_pos / (float)instructions.size();
+
+	sf::Vector2f pos = draw_pos + sf::Vector2f(MARGIN, MARGIN);
+	sf::RectangleShape cursor(sf::Vector2f(window_size.x - 4* MARGIN, FONT_SIZE));
+	cursor.setFillColor(DISAS_CURSOR_COLOR);
+
+	for (unsigned int i = line_offset; i < lines + line_offset; i++) {
+
+		// draw bytes
+		Res::setTextColor(DISAS_LINE_COLOR);
+		Res::setTextString( instructions[i].to_string );
+		Res::setTextPosition(pos);
+
+		if (i == cursor_pos) { // draw cursor
+			Res::setTextColor(DISAS_SELECTED_LINE_COLOR);
+			cursor.setPosition(Res::getTextPosition());
+			window.draw(cursor);
+		}
+		window.draw(Res::getText());
+		
+		pos = sf::Vector2f(draw_pos.x + MARGIN, pos.y + FONT_SIZE + DISAS_LINE_SPACING);
+
+	}
+
 	return scroll_p;
 }
 

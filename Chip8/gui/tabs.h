@@ -5,6 +5,8 @@
 #include "utils.h"
 #include "conf.h"
 
+#include "Disassembler.h"
+
 class Tab
 {
 public:
@@ -62,10 +64,11 @@ class DisassemblerTab : public Tab
 {
 public:
 	DisassemblerTab() {
-		for (int i = 0; i < ROM_SIZE; i++)
-			m_bytes[i] = i;
-		
+		m_disassembler.setBytesArray(m_bytes);
+		//for (int i = 0; i < ROM_SIZE; i++)
+		//	m_bytes[i] = i;	
 	}
+
 	virtual void handleEvent(sf::Event& event) override;
 	virtual void process() override {}
 	virtual void render(sf::RenderWindow& window) override;
@@ -76,6 +79,8 @@ private:
 	bool m_second_byte = false; // when press any key 0-9 a-f -> is the key first or second
 	unsigned int m_cursor_pos = 0;
 	unsigned char m_bytes[ROM_SIZE] = {0};
+	Disassembler m_disassembler;
+
 	sf::Vector2f getHexPosition();
 	sf::Vector2f getDisasPosition();
 	sf::Vector2f getInfoPosition();

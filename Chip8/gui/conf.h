@@ -7,6 +7,8 @@
 //#define FONT_PATH "res/font/PressStart2P-Regular.ttf"
 #define FONT_SIZE 20
 
+#define FONT_ADJUSTMENT sf::Vector2f(5, -5)
+
 class Res {
 public:
 	static void init() {
@@ -14,6 +16,24 @@ public:
 		s_text.setFont(s_font);
 		s_text.setCharacterSize(FONT_SIZE);
 	}
+	static void setTextPosition(sf::Vector2f pos) {
+		s_text.setPosition(pos + FONT_ADJUSTMENT);
+	}
+	static sf::Vector2f getTextPosition() {
+		return s_text.getPosition() - FONT_ADJUSTMENT;
+	}
+	static void setTextColor(const sf::Color& color) {
+		s_text.setFillColor(color);
+	}
+	static void setTextString(std::string str) {
+		s_text.setString(str);
+	}
+
+	static const sf::Text& getText() {
+		return s_text;
+	}
+
+private:
 	static sf::Font s_font;
 	static sf::Text s_text;
 };
@@ -30,6 +50,10 @@ public:
 
 #define TAB_TITLE_COLOR sf::Color(200,200,200)
 #define TAB_SELECTED_TITLE_COLOR sf::Color(200,165,0)
+
+#define DISAS_CURSOR_COLOR sf::Color::White
+#define DISAS_LINE_COLOR sf::Color::White
+#define DISAS_SELECTED_LINE_COLOR sf::Color::Black
 
 #define F4_CURSOR_COLOR sf::Color::White
 #define F4_HELP_TEXT_COLOR sf::Color::White
@@ -49,6 +73,7 @@ public:
 // other values
 #define HEX_BYTE_SPACEING 15
 #define HEX_LINE_SPACEING 5
+#define DISAS_LINE_SPACING 5
 
 /* window dimension emulation
 

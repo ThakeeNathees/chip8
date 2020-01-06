@@ -120,17 +120,19 @@ void DisassemblerTab::handleEvent(sf::Event& event) {
 void DisassemblerTab::render(sf::RenderWindow& window) {
 	// hex
 	drawBorder(window, getHexPosition(), sf::Vector2f(F4_HEXDUMP_WIDTH, F4_HEXDUMP_HEIGHT));
-	float scroll_p = drawHexDump(window, getHexPosition(), m_bytes, F4_HEX_BYTE_PER_LNE, F4_HEXDUMP_HEIGHT, m_cursor_pos);
-	drawScrollBar(window, getHexPosition() + sf::Vector2f(F4_HEXDUMP_WIDTH, 0), F4_HEXDUMP_HEIGHT, scroll_p);
+	float scroll_hex = drawHexDump(window, getHexPosition(), m_bytes, F4_HEX_BYTE_PER_LNE, F4_HEXDUMP_HEIGHT, m_cursor_pos);
+	drawScrollBar(window, getHexPosition() + sf::Vector2f(F4_HEXDUMP_WIDTH, 0), F4_HEXDUMP_HEIGHT, scroll_hex);
 
 
 	// disas
 	drawBorder(window, getDisasPosition(), sf::Vector2f(F4_DISAS_WIDTH, F4_DISAS_HEIGHT));
-	drawScrollBar(window, getDisasPosition() + sf::Vector2f(F4_DISAS_WIDTH, 0), F4_DISAS_HEIGHT, 0);
+	m_disassembler.disassemble();
+	float scroll_disas = drawDisassembly(window, getDisasPosition(), m_disassembler.getInstructions(), sf::Vector2f(F4_DISAS_WIDTH, F4_DISAS_HEIGHT), m_cursor_pos/2);
+	drawScrollBar(window, getDisasPosition() + sf::Vector2f(F4_DISAS_WIDTH, 0), F4_DISAS_HEIGHT, scroll_disas);
 
 
 	// info
-	Res::s_text.setPosition(getInfoPosition()); Res::s_text.setFillColor(F4_HELP_TEXT_COLOR);
-	Res::s_text.setString("Ctrl-O : open new file");
-	window.draw(Res::s_text);
+	Res::setTextPosition(getInfoPosition()); Res::setTextColor(F4_HELP_TEXT_COLOR);
+	Res::setTextString("Ctrl-O : open new file");
+	window.draw(Res::getText());
 }
