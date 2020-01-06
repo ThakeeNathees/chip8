@@ -39,15 +39,6 @@ inline void drawScrollBar(sf::RenderTarget& render_target, sf::Vector2f position
 	render_target.draw(box);
 }
 
-
-inline std::string toHexString(unsigned int value, unsigned int fill = 2) {
-	std::string hexStr;
-	std::stringstream sstream;
-	sstream << std::setfill('0') << std::setw(fill) << std::hex << (unsigned int)value;
-	hexStr = sstream.str();
-	sstream.clear();
-	return hexStr;
-}
 inline float drawHexDump(sf::RenderWindow& window, sf::Vector2f draw_pos, unsigned char bytes[], unsigned int bytes_per_line, float window_height, unsigned int cursor_pos = 0) 
 {
 	unsigned int line_spacing	= HEX_LINE_SPACEING;
@@ -109,3 +100,6 @@ inline float drawHexDump(sf::RenderWindow& window, sf::Vector2f draw_pos, unsign
 	}
 	return scroll_p;
 }
+
+// TODO: create a disas structure first
+//inline float drawDisas(sf::RenderWindow& window, sf::Vector2f draw_pos, std::vector<std::string>  ) {}

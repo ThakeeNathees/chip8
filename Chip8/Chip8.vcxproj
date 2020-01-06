@@ -134,6 +134,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Disassembler.h" />
     <ClInclude Include="gui\conf.h" />
     <ClInclude Include="include.h" />
     <ClInclude Include="gui\utils.h" />
