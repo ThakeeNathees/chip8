@@ -12,8 +12,47 @@ sf::Vector2f DisassemblerTab::getInfoPosition() {
 
 void DisassemblerTab::handleEvent(sf::Event& event) {
 	
+	// mouse scroll page up/down
+	if (event.type == sf::Event::MouseWheelScrolled && m_state == 0) {
+		if (event.mouseWheelScroll.delta > 0) {
+			if (m_cursor_pos >= F4_HEX_BYTE_PER_LNE * F4_PAGEUPDOWN_LINES)
+				m_cursor_pos -= F4_HEX_BYTE_PER_LNE * F4_PAGEUPDOWN_LINES;
+			else m_cursor_pos = 0;
+		}
+		else {
+			if (m_cursor_pos + F4_HEX_BYTE_PER_LNE * F4_PAGEUPDOWN_LINES < ROM_SIZE)
+				m_cursor_pos += F4_HEX_BYTE_PER_LNE * F4_PAGEUPDOWN_LINES;
+			else m_cursor_pos = ROM_SIZE - 1;
+		}
+	}
+
+	// mouse popup close
+	if (event.type == sf::Event::MouseButtonReleased && m_state != 0) { // TODO: check states
+		if (mouseInPopupClose(event)) {
+			m_state = 0;
+		}
+	}
+
+	// mouse clicked on byte
+	if (event.type == sf::Event::MouseButtonReleased && m_state == 0) {
+		sf::Vector2i pos = mouseF4HexdumpByte(event, getHexPosition());
+		if (pos.x < 0 || pos.y < 0); // no byte selected
+		else {
+			m_cursor_pos = pos.x + F4_HEX_BYTE_PER_LNE * (pos.y + m_line_offset);
+			m_second_byte = false;
+		}
+	}
+
+
 	// normal mode key bind
 	if (event.type == sf::Event::KeyPressed && m_state == 0) {
+
+		// popup 
+		if (event.key.code == sf::Keyboard::N) {
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) ||
+				sf::Keyboard::isKeyPressed(sf::Keyboard::RControl) ) 
+				m_state = 1;
+		}
 		
 		// navigation
 		if (event.key.code == sf::Keyboard::Right && m_cursor_pos < ROM_SIZE - 1) { m_cursor_pos++; m_second_byte = false; }
@@ -29,10 +68,12 @@ void DisassemblerTab::handleEvent(sf::Event& event) {
 		else if (event.key.code == sf::Keyboard::PageUp) {
 			if (m_cursor_pos >= F4_HEX_BYTE_PER_LNE * F4_PAGEUPDOWN_LINES )
 				m_cursor_pos -= F4_HEX_BYTE_PER_LNE * F4_PAGEUPDOWN_LINES;
+			else m_cursor_pos = 0;
 		}
 		else if (event.key.code == sf::Keyboard::PageDown) {
 			if (m_cursor_pos + F4_HEX_BYTE_PER_LNE * F4_PAGEUPDOWN_LINES < ROM_SIZE)
 				m_cursor_pos += F4_HEX_BYTE_PER_LNE * F4_PAGEUPDOWN_LINES;
+			else m_cursor_pos = ROM_SIZE - 1;
 		}
 		else if (event.key.code == sf::Keyboard::Home) {
 				m_cursor_pos = 0;
@@ -115,12 +156,17 @@ void DisassemblerTab::handleEvent(sf::Event& event) {
 		
 
 	}
+	if (event.type == sf::Event::KeyPressed && m_state == 1) {
+		if (event.key.code == sf::Keyboard::Escape) {
+			m_state = 0;
+		}
+	}
 }
 
 void DisassemblerTab::render(sf::RenderWindow& window) {
 	// hex
 	drawBorder(window, getHexPosition(), sf::Vector2f(F4_HEXDUMP_WIDTH, F4_HEXDUMP_HEIGHT));
-	float scroll_hex = drawHexDump(window, getHexPosition(), m_bytes, F4_HEX_BYTE_PER_LNE, F4_HEXDUMP_HEIGHT, m_cursor_pos);
+	float scroll_hex = drawHexDump(window, getHexPosition(), m_bytes, F4_HEX_BYTE_PER_LNE, F4_HEXDUMP_HEIGHT, m_cursor_pos, &m_line_offset);
 	drawScrollBar(window, getHexPosition() + sf::Vector2f(F4_HEXDUMP_WIDTH, 0), F4_HEXDUMP_HEIGHT, scroll_hex);
 
 
@@ -133,6 +179,11 @@ void DisassemblerTab::render(sf::RenderWindow& window) {
 
 	// info
 	Res::setTextPosition(getInfoPosition()); Res::setTextColor(F4_HELP_TEXT_COLOR);
-	Res::setTextString("Ctrl-O : open new file");
+	Res::setTextString("Ctrl-O : open new file\nCtrl-N : new file");
 	window.draw(Res::getText());
+
+	if (m_state == 1) {  // draw file navigation popup
+		drawPopup(window, 1);
+
+	}
 }

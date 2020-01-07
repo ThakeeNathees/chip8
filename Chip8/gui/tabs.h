@@ -14,7 +14,9 @@ public:
 	virtual void process() = 0;
 	virtual void render(sf::RenderWindow& window) = 0;
 	virtual std::string getTitle() = 0;
-
+	int getTabState() { return m_state; }
+protected:
+	int m_state = 0; // 0 = normal , 1 = file popup window
 };
 
 class HelpTab : public Tab
@@ -75,9 +77,9 @@ public:
 	virtual std::string getTitle() override { return std::string("Disssembler (F4)"); }
 
 private:
-	int m_state = 0; // 0 = normal , 1 = file popup window
 	bool m_second_byte = false; // when press any key 0-9 a-f -> is the key first or second
 	unsigned int m_cursor_pos = 0;
+	unsigned int m_line_offset = 0;
 	unsigned char m_bytes[ROM_SIZE] = {0};
 	Disassembler m_disassembler;
 
@@ -106,7 +108,9 @@ public:
 	}
 
 	void handleEvent(sf::Event& event) {
-		if (event.type == sf::Event::KeyPressed) {
+
+		// change tab - keyboard
+		if (event.type == sf::Event::KeyPressed && getCurrentTab()->getTabState() == 0 ) {
 			if (event.key.code == sf::Keyboard::Key::Tab) setTab( m_current_tab+1 );
 			if (event.key.code == sf::Keyboard::Key::F1) setHelpTab();
 			if (event.key.code == sf::Keyboard::Key::F2) setEmulatorTab();
@@ -114,6 +118,21 @@ public:
 			if (event.key.code == sf::Keyboard::Key::F4) setDisassemblerTab();
 		}
 		getCurrentTab()->handleEvent(event);
+
+		// change tab - mouse
+		if (event.type == sf::Event::MouseButtonReleased && getCurrentTab()->getTabState() == 0) {
+			if (event.mouseButton.button == sf::Mouse::Left) {
+				int x = event.mouseButton.x, y = event.mouseButton.y;
+				if (mouseposToTabNum(x, y) == 1) setHelpTab();
+				if (mouseposToTabNum(x, y) == 2) setEmulatorTab();
+				if (mouseposToTabNum(x, y) == 3) setAssemblerTab();
+				if (mouseposToTabNum(x, y) == 4) setDisassemblerTab();
+			}
+		}
+	}
+
+	void process() {
+
 	}
 
 	void render(sf::RenderWindow& window) {
@@ -150,6 +169,21 @@ private:
 	
 
 private:
+
+	int mouseposToTabNum(int x, int y) { // returns -1 if not in any tab
+		bool y_in_range = MARGIN <= y && y <= MARGIN + TAB_HEIGHT;
+		if (!y_in_range) return -1;
+
+		int mapped_x = (x - MARGIN) / TAB_WIDTH;
+		if (mapped_x < 0 || mapped_x > 4) return -1;
+		if (mapped_x < 1) return 1;
+		if (mapped_x < 2) return 2;
+		if (mapped_x < 3) return 3;
+		if (mapped_x < 4) return 4;
+		
+		return -1;
+	}
+
 	void drawTabBorder( sf::RenderWindow& window) {
 		for (int tab_no = 0; tab_no < m_tabs.size(); tab_no++) {
 			drawVertexLine(window, sf::Vector2f(MARGIN + TAB_WIDTH * tab_no, MARGIN + TAB_HEIGHT), sf::Vector2f(MARGIN + TAB_WIDTH * tab_no, MARGIN), BORDER_COLOR);

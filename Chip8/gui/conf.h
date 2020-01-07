@@ -60,12 +60,15 @@ private:
 #define BYTES_COLOR sf::Color::White
 #define SELECTED_BYTE_COLOR sf::Color::Black
 
+
+#define POPUP_BG_COLOR sf::Color(170, 170, 170, 50)
+#define CLOSE_BUTTON_COLOR sf::Color(230, 90, 90)
+
 // sizes
 #define MARGIN 10
 #define BORDER_SIZE 1
 
 #define TAB_TITLE_SIZE 20
-
 #define TAB_HEIGHT  40
 #define TAB_WIDTH   200
 
@@ -115,6 +118,10 @@ margin		++------------------------------------------++
 #define F2_REG_INFO_HEIGHT F2_HEXDUMP_HEIGHT
 
 
+#define POPUP_WIDTH WINDOW_WIDTH * .8
+#define POPUP_HEIGHT WINDOW_HEIGHT * .8
+#define POPUP_POS_X (WINDOW_WIDTH-POPUP_WIDTH)/2
+#define POPUP_POS_Y (WINDOW_HEIGHT-POPUP_HEIGHT)/2
 /* window dimension emulation
 scroll bar
 			margin	       width    	  margin width margin

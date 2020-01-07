@@ -39,19 +39,20 @@ inline void drawScrollBar(sf::RenderTarget& render_target, sf::Vector2f position
 	render_target.draw(box);
 }
 
-inline float drawHexDump(sf::RenderWindow& window, sf::Vector2f draw_pos, unsigned char bytes[], unsigned int bytes_per_line, float window_height, unsigned int cursor_pos = 0) 
+inline float drawHexDump(sf::RenderWindow& window, sf::Vector2f draw_pos, unsigned char bytes[], unsigned int bytes_per_line, float window_height, unsigned int cursor_pos = 0, unsigned int* line_offset = NULL)
 {
+	static unsigned int offset = 0;
+	if (line_offset == NULL) line_offset = &offset;
 	unsigned int line_spacing	= HEX_LINE_SPACEING;
 	sf::Color cursor_color		= F4_CURSOR_COLOR;
 	float byte_spacing			= HEX_BYTE_SPACEING;
 
 	// draw bytes loop
-	static unsigned int line_offset = 0;
 	unsigned int total_lines = ROM_SIZE / bytes_per_line;
 	unsigned int lines = (window_height - 3 * FONT_SIZE) / (FONT_SIZE + line_spacing);
 	unsigned int cursor_line = cursor_pos / bytes_per_line;
-	if (cursor_line >= lines + line_offset) line_offset = cursor_line - lines + 1;
-	if (cursor_line < line_offset) line_offset = cursor_line;
+	if (cursor_line >= lines + *line_offset) *line_offset = cursor_line - lines + 1;
+	if (cursor_line < *line_offset) *line_offset = cursor_line;
 	float scroll_p = (float)cursor_line / (float)total_lines;
 
 	sf::Vector2f pos = draw_pos + sf::Vector2f(MARGIN, MARGIN);
@@ -70,7 +71,7 @@ inline float drawHexDump(sf::RenderWindow& window, sf::Vector2f draw_pos, unsign
 	drawVertexLine(window, sf::Vector2f(draw_pos.x + FONT_SIZE + byte_spacing * 4, pos.y + FONT_SIZE + line_spacing * 2), sf::Vector2f(draw_pos.x + FONT_SIZE + byte_spacing * 4, draw_pos.y + window_height - MARGIN), BORDER_COLOR);
 	pos = sf::Vector2f(draw_pos.x + MARGIN, pos.y + FONT_SIZE + line_spacing*3);
 
-	for (unsigned int i = bytes_per_line * line_offset; i < lines * bytes_per_line + bytes_per_line * line_offset; i++) { // TODO: MAX LINE NO -> min(total lines, claculated)
+	for (unsigned int i = bytes_per_line * *line_offset; i < lines * bytes_per_line + bytes_per_line * *line_offset; i++) {
 
 		// draw address
 		Res::setTextColor(BYTES_COLOR);
@@ -132,6 +133,72 @@ inline float drawDisassembly(sf::RenderWindow& window, sf::Vector2f draw_pos, co
 	}
 
 	return scroll_p;
+}
+
+inline sf::Vector2i mouseF4HexdumpByte(sf::Event event, sf::Vector2f hexdump_pos) {
+	int x = event.mouseButton.x, y = event.mouseButton.y;
+	
+	int mapped_x = (x - hexdump_pos.x -(MARGIN + FONT_SIZE + HEX_BYTE_SPACEING * 4)) / (FONT_SIZE + HEX_BYTE_SPACEING);
+	int mapped_y = (y - hexdump_pos.y -(MARGIN + FONT_SIZE + HEX_LINE_SPACEING * 3)) / (FONT_SIZE + HEX_LINE_SPACEING);
+
+
+	unsigned int lines = (F4_HEXDUMP_HEIGHT - 3 * FONT_SIZE) / (FONT_SIZE + HEX_LINE_SPACEING);
+
+	if (mapped_x < 0 || mapped_x >= F4_HEX_BYTE_PER_LNE) return sf::Vector2i(-1,-1);
+	if (mapped_y < 0 || mapped_y >= lines) return sf::Vector2i(-1, -1);
+
+	return sf::Vector2i(mapped_x, mapped_y);
+}
+
+inline bool mouseInPopupClose(sf::Event event) {
+	int x = event.mouseButton.x;
+	int y = event.mouseButton.y;
+	int button_x = POPUP_POS_X + POPUP_WIDTH - 2 * FONT_SIZE;
+	int button_y = POPUP_POS_Y + MARGIN / 2;
+	int button_size = 2 * FONT_SIZE - MARGIN / 2;
+
+	if (button_x <= x && x <= button_x + button_size)
+		if (button_y <= y && y <= button_y + button_size)
+			return true;
+
+	return false;
+
+}
+
+inline void drawPopup(sf::RenderWindow& window, int mode = 1) { // mode 1 : new file
+	// background
+	sf::RectangleShape box(sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT)); 
+	box.setFillColor(POPUP_BG_COLOR);
+	window.draw(box);
+
+	// border
+	box.setSize(sf::Vector2f(POPUP_WIDTH, POPUP_HEIGHT));
+	box.setPosition(sf::Vector2f(POPUP_POS_X, POPUP_POS_Y));
+	box.setFillColor(BORDER_COLOR);
+	window.draw(box);
+
+	// title
+	if (mode == 1) {
+		Res::setTextString("Create A New File");
+		Res::setTextColor(TAB_TITLE_COLOR);
+		Res::setTextPosition(box.getPosition() + sf::Vector2f(MARGIN, MARGIN) );
+		window.draw(Res::getText());
+	}
+
+	// close button
+	sf::RectangleShape close_button(sf::Vector2f(2*FONT_SIZE - MARGIN/2, 2*FONT_SIZE - MARGIN / 2));
+	close_button.setFillColor(CLOSE_BUTTON_COLOR);
+	close_button.setPosition( box.getPosition() + sf::Vector2f(POPUP_WIDTH- 2*FONT_SIZE, MARGIN / 2) );
+	window.draw(close_button);
+
+	// body
+	box.setSize(sf::Vector2f(POPUP_WIDTH - MARGIN, POPUP_HEIGHT - MARGIN - 2* FONT_SIZE ));
+	box.setPosition( box.getPosition() + sf::Vector2f( MARGIN / 2, MARGIN/2 + 2*FONT_SIZE) );
+	box.setFillColor(BG_COLOR);
+	window.draw(box);
+
+
+
 }
 
 // TODO: create a disas structure first
