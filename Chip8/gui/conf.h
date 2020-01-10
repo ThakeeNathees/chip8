@@ -149,3 +149,4 @@ margin		++------------------------------------------++
 #define F4_DISAS_WIDTH  (WINDOW_WIDTH - ( MARGIN + F4_HEXDUMP_WIDTH + MARGIN + /* disas */ + MARGIN ))
 #define F4_DISAS_HEIGHT F4_HEXDUMP_HEIGHT
 
+#define F4_INFO_WIDTH 400

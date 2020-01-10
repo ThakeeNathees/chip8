@@ -77,6 +77,8 @@ public:
 	virtual std::string getTitle() override { return std::string("Disssembler (F4)"); }
 
 private:
+	std::string m_working_file = "";
+	std::string m_error_msg = "";
 	bool m_second_byte = false; // when press any key 0-9 a-f -> is the key first or second
 	unsigned int m_cursor_pos = 0;
 	unsigned int m_line_offset = 0;

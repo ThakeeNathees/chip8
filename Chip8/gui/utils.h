@@ -165,7 +165,8 @@ inline bool mouseInPopupClose(sf::Event event) {
 
 }
 
-inline void drawPopup(sf::RenderWindow& window, int mode = 1) { // mode 1 : new file
+inline void drawPopup(sf::RenderWindow& window, int mode = 1, const std::string& msg = "") { // mode 1 : show error
+
 	// background
 	sf::RectangleShape box(sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT)); 
 	box.setFillColor(POPUP_BG_COLOR);
@@ -192,10 +193,22 @@ inline void drawPopup(sf::RenderWindow& window, int mode = 1) { // mode 1 : new 
 	window.draw(close_button);
 
 	// body
+
+	//if (mode == 1) // new file -> name
+	//	box.setSize(sf::Vector2f(POPUP_WIDTH - MARGIN, POPUP_HEIGHT - MARGIN - 2 * FONT_SIZE - 2*FONT_SIZE));
+	//else
+	//	box.setSize(sf::Vector2f(POPUP_WIDTH - MARGIN, POPUP_HEIGHT - MARGIN - 2* FONT_SIZE ));
 	box.setSize(sf::Vector2f(POPUP_WIDTH - MARGIN, POPUP_HEIGHT - MARGIN - 2* FONT_SIZE ));
+
 	box.setPosition( box.getPosition() + sf::Vector2f( MARGIN / 2, MARGIN/2 + 2*FONT_SIZE) );
 	box.setFillColor(BG_COLOR);
 	window.draw(box);
+
+	if (mode == 1) {
+		Res::setTextString(msg);
+		Res::setTextPosition(box.getPosition() + sf::Vector2f(0, box.getSize().y / 2));
+		window.draw(Res::getText());
+	}
 
 
 

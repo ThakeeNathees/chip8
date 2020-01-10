@@ -1,5 +1,30 @@
 #include "tabs.h"
 
+void save_file(std::string& file_path, int* state, std::string& error_msg) {
+	if (file_path == std::string("")) {
+		file_path = browse_file();
+	}
+	std::ofstream myFile(file_path, std::ios::out | std::ios::binary);
+	if (!myFile.write((char*)&file_path, ROM_SIZE)) {
+		*state = 1;
+		error_msg = std::string("Error writeing file :\n").append(file_path); // TODO: replace \ with /
+	}
+	
+}
+
+void open_file(std::string& file_path, unsigned char* m_bytes, int* state, std::string& error_msg) {
+	file_path = browse_file();
+	std::ifstream myFile(file_path, std::ios::in | std::ios::binary);
+	myFile.seekg(0, std::ios_base::end);
+	int file_size = myFile.tellg();
+
+	myFile.seekg(0);
+	if (!myFile.read((char*)&m_bytes, std::min(ROM_SIZE, file_size))) {
+		*state = 1;
+		error_msg = std::string("Error reading file :\n").append(file_path); // TODO: replace \ with /
+	}
+}
+
 sf::Vector2f DisassemblerTab::getHexPosition() {
 	return sf::Vector2f(MARGIN, MARGIN + TAB_HEIGHT + MARGIN);
 }
@@ -43,15 +68,41 @@ void DisassemblerTab::handleEvent(sf::Event& event) {
 		}
 	}
 
+	// mouse clicked on info
+	if (event.type == sf::Event::MouseButtonReleased && m_state == 0) {
+		sf::Vector2f pos = getInfoPosition();
+		if (pos.x < event.mouseButton.x && event.mouseButton.x < pos.x + F4_INFO_WIDTH) {
+			
+			if (pos.y < event.mouseButton.y && event.mouseButton.y < pos.y + FONT_SIZE) { // ctrl + o
+				open_file(m_working_file, m_bytes, &m_state, m_error_msg);
+			}
+
+			if (pos.y + FONT_SIZE + MARGIN / 2 < event.mouseButton.y && event.mouseButton.y < pos.y + 2 * FONT_SIZE + MARGIN / 2) { // ctrl + s
+				save_file(m_working_file, &m_state, m_error_msg);
+			}
+		}
+		
+
+	}
+
 
 	// normal mode key bind
 	if (event.type == sf::Event::KeyPressed && m_state == 0) {
 
-		// popup 
-		if (event.key.code == sf::Keyboard::N) {
+		// ctrl + o
+		if (event.key.code == sf::Keyboard::O) {
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) ||
-				sf::Keyboard::isKeyPressed(sf::Keyboard::RControl) ) 
-				m_state = 1;
+				sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
+				open_file(m_working_file, m_bytes, &m_state, m_error_msg);
+		}
+		// ctrl + s
+		if (event.key.code == sf::Keyboard::S) {
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) ||
+				sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
+			{
+				save_file(m_working_file, &m_state, m_error_msg);
+			}
+				 
 		}
 		
 		// navigation
@@ -148,11 +199,6 @@ void DisassemblerTab::handleEvent(sf::Event& event) {
 			if (!m_second_byte) { m_bytes[m_cursor_pos] = 0xf0 | (m_bytes[m_cursor_pos] & 0x0f); m_second_byte = true; }
 			else { m_bytes[m_cursor_pos] = 0x0f | (m_bytes[m_cursor_pos] & 0xf0); m_second_byte = false; m_cursor_pos++; }
 		}
-
-		// popup mode key bind
-		if (event.type == sf::Event::KeyPressed && m_state == 1) {
-
-		}
 		
 
 	}
@@ -178,12 +224,17 @@ void DisassemblerTab::render(sf::RenderWindow& window) {
 
 
 	// info
-	Res::setTextPosition(getInfoPosition()); Res::setTextColor(F4_HELP_TEXT_COLOR);
-	Res::setTextString("Ctrl-O : open new file\nCtrl-N : new file");
-	window.draw(Res::getText());
+	Res::setTextColor(F4_HELP_TEXT_COLOR); 
+	sf::RectangleShape box(sf::Vector2f(F4_INFO_WIDTH, FONT_SIZE)); box.setFillColor(COLOR_NONE); box.setOutlineThickness(BORDER_SIZE); box.setOutlineColor(BORDER_COLOR);
+	Res::setTextPosition(getInfoPosition());  Res::setTextString("Ctrl-O : open file");
+	box.setPosition(Res::getTextPosition());
+	window.draw(Res::getText()); window.draw(box);
+
+	Res::setTextPosition(getInfoPosition() + sf::Vector2f(0, FONT_SIZE+MARGIN/2)); Res::setTextString("Ctrl-S : save file");
+	box.setPosition(Res::getTextPosition());
+	window.draw(Res::getText()); window.draw(box);
 
 	if (m_state == 1) {  // draw file navigation popup
-		drawPopup(window, 1);
-
+		drawPopup(window, 1, m_error_msg);
 	}
 }

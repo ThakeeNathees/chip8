@@ -7,17 +7,15 @@
 sf::Font Res::s_font;
 sf::Text Res::s_text;
 
+
 int main()
 {
-	list_directory("e:/movies");
 	
 	Res::init();
 
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Chip8", sf::Style::Titlebar | sf::Style::Close);
 
-
 	TabView tab_view;
-
 	while (window.isOpen())
 	{
 		sf::Event event;
