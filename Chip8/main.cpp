@@ -29,7 +29,7 @@ int main()
 
 		tab_view.render(window);
 
-		tab_view.getEmulatorTab()->setPixel( rand()%64, rand() % 32, rand() % 2);
+		tab_view.getEmulatorTab()->setDispPixel( rand()%64, rand() % 32, rand() % 2);
 
 		window.display();
 	}

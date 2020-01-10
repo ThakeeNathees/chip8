@@ -39,7 +39,7 @@ inline void drawScrollBar(sf::RenderTarget& render_target, sf::Vector2f position
 	render_target.draw(box);
 }
 
-inline float drawHexDump(sf::RenderWindow& window, sf::Vector2f draw_pos, unsigned char bytes[], unsigned int bytes_per_line, float window_height, unsigned int cursor_pos = 0, unsigned int* line_offset = NULL)
+inline float drawHexDump(sf::RenderWindow& window, sf::Vector2f draw_pos, const unsigned char bytes[], unsigned int bytes_per_line, float window_height, unsigned int cursor_pos = 0, unsigned int* line_offset = NULL)
 {
 	static unsigned int offset = 0;
 	if (line_offset == NULL) line_offset = &offset;
@@ -116,16 +116,21 @@ inline float drawDisassembly(sf::RenderWindow& window, sf::Vector2f draw_pos, co
 
 	for (unsigned int i = line_offset; i < lines + line_offset; i++) {
 
-		// draw bytes
-		Res::setTextColor(DISAS_LINE_COLOR);
-		Res::setTextString( instructions[i].to_string );
-		Res::setTextPosition(pos);
-
 		if (i == cursor_pos) { // draw cursor
-			Res::setTextColor(DISAS_SELECTED_LINE_COLOR);
-			cursor.setPosition(Res::getTextPosition());
+			cursor.setPosition(pos);
 			window.draw(cursor);
 		}
+
+		Res::setTextColor( (i == cursor_pos)? DISAS_SELECTED_LINE_COLOR :DISAS_LINE_COLOR);
+		//draw address
+		Res::setTextString( std::string("0x").append(toHexString(i*2, 3)) );
+		Res::setTextPosition(pos);
+		window.draw(Res::getText());
+
+		// draw instruction
+		Res::setTextString(instructions[i].to_string);
+		Res::setTextPosition(pos + sf::Vector2f( FONT_SIZE*4 ,0) );
+
 		window.draw(Res::getText());
 		
 		pos = sf::Vector2f(draw_pos.x + MARGIN, pos.y + FONT_SIZE + DISAS_LINE_SPACING);
@@ -180,7 +185,7 @@ inline void drawPopup(sf::RenderWindow& window, int mode = 1, const std::string&
 
 	// title
 	if (mode == 1) {
-		Res::setTextString("Create A New File");
+		Res::setTextString("Error");
 		Res::setTextColor(TAB_TITLE_COLOR);
 		Res::setTextPosition(box.getPosition() + sf::Vector2f(MARGIN, MARGIN) );
 		window.draw(Res::getText());

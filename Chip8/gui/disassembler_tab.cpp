@@ -1,29 +1,5 @@
 #include "tabs.h"
 
-void save_file(std::string& file_path, int* state, std::string& error_msg) {
-	if (file_path == std::string("")) {
-		file_path = browse_file();
-	}
-	std::ofstream myFile(file_path, std::ios::out | std::ios::binary);
-	if (!myFile.write((char*)&file_path, ROM_SIZE)) {
-		*state = 1;
-		error_msg = std::string("Error writeing file :\n").append(file_path); // TODO: replace \ with /
-	}
-	
-}
-
-void open_file(std::string& file_path, unsigned char* m_bytes, int* state, std::string& error_msg) {
-	file_path = browse_file();
-	std::ifstream myFile(file_path, std::ios::in | std::ios::binary);
-	myFile.seekg(0, std::ios_base::end);
-	int file_size = myFile.tellg();
-
-	myFile.seekg(0);
-	if (!myFile.read((char*)&m_bytes, std::min(ROM_SIZE, file_size))) {
-		*state = 1;
-		error_msg = std::string("Error reading file :\n").append(file_path); // TODO: replace \ with /
-	}
-}
 
 sf::Vector2f DisassemblerTab::getHexPosition() {
 	return sf::Vector2f(MARGIN, MARGIN + TAB_HEIGHT + MARGIN);
@@ -74,11 +50,31 @@ void DisassemblerTab::handleEvent(sf::Event& event) {
 		if (pos.x < event.mouseButton.x && event.mouseButton.x < pos.x + F4_INFO_WIDTH) {
 			
 			if (pos.y < event.mouseButton.y && event.mouseButton.y < pos.y + FONT_SIZE) { // ctrl + o
-				open_file(m_working_file, m_bytes, &m_state, m_error_msg);
+				m_working_file = browse_file();
+				if (m_working_file != std::string("")) {
+					std::ifstream myFile(m_working_file, std::ios::in | std::ios::binary);
+					myFile.seekg(0, std::ios_base::end);
+					int file_size = myFile.tellg();
+
+					myFile.seekg(0);
+					if (!myFile.read((char*)&m_bytes, std::min(ROM_SIZE, file_size))) {
+						m_state = 1;
+						m_error_msg = std::string("Error reading file : ").append(m_working_file); // TODO: replace \ with /
+					}
+				}
 			}
 
 			if (pos.y + FONT_SIZE + MARGIN / 2 < event.mouseButton.y && event.mouseButton.y < pos.y + 2 * FONT_SIZE + MARGIN / 2) { // ctrl + s
-				save_file(m_working_file, &m_state, m_error_msg);
+				if (m_working_file == std::string("")) {
+					m_working_file = browse_file();
+				}
+				if (m_working_file != std::string("")) {
+					std::ofstream myFile(m_working_file, std::ios::out | std::ios::binary);
+					if (!myFile.write((char*)&m_bytes, ROM_SIZE)) {
+						m_state = 1;
+						m_error_msg = std::string("Error writeing file : \n").append(m_working_file); // TODO: replace \ with /
+					}
+				}
 			}
 		}
 		
@@ -93,14 +89,36 @@ void DisassemblerTab::handleEvent(sf::Event& event) {
 		if (event.key.code == sf::Keyboard::O) {
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) ||
 				sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
-				open_file(m_working_file, m_bytes, &m_state, m_error_msg);
+			{
+				m_working_file = browse_file();
+				if (m_working_file != std::string("")) {
+					std::ifstream myFile(m_working_file, std::ios::in | std::ios::binary);
+					myFile.seekg(0, std::ios_base::end);
+					int file_size = myFile.tellg();
+
+					myFile.seekg(0);
+					if (!myFile.read((char*)&m_bytes, std::min(ROM_SIZE, file_size))) {
+						m_state = 1;
+						m_error_msg = std::string("Error reading file : ").append(m_working_file); // TODO: replace \ with /
+					}
+				}
+			}
 		}
 		// ctrl + s
 		if (event.key.code == sf::Keyboard::S) {
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) ||
 				sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
 			{
-				save_file(m_working_file, &m_state, m_error_msg);
+				if (m_working_file == std::string("")) {
+					m_working_file = browse_file();
+				}
+				if (m_working_file != std::string("")) {
+					std::ofstream myFile(m_working_file, std::ios::out | std::ios::binary);
+					if (!myFile.write((char*)&m_bytes, ROM_SIZE)) {
+						m_state = 1;
+						m_error_msg = std::string("Error writeing file : \n").append(m_working_file); // TODO: replace \ with /
+					}
+				}
 			}
 				 
 		}

@@ -58,12 +58,12 @@ public:
 class Disassembler
 {
 private:
-	unsigned char* m_bytes_array = NULL; // a pointer to bytes array
+	const unsigned char* m_bytes_array = NULL; // a pointer to bytes array
 	unsigned int m_bytes_size = ROM_SIZE;
 	std::vector<Instruction> m_instructions;
 
 public:
-	void setBytesArray(unsigned char* bytes_array) {
+	void setBytesArray(const unsigned char* bytes_array) {
 		m_bytes_array = bytes_array;
 	}
 

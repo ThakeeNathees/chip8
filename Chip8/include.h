@@ -32,32 +32,33 @@ inline std::string toHexString(unsigned int value, unsigned int fill = 2) {
 
 
 #ifdef _WIN32
-#include <commdlg.h>
-inline std::string browse_file() {
-	OPENFILENAME ofn;
-	::memset(&ofn, 0, sizeof(ofn));
-	char f1[MAX_PATH];
-	f1[0] = 0;
-	ofn.lStructSize = sizeof(ofn);
-	ofn.lpstrTitle = "Select A File";
-	ofn.lpstrFilter = "All Files\0*.*\0Chip8Rom\0*.c8\0\0";
-	ofn.nFilterIndex = 2;
-	ofn.lpstrFile = f1;
-	ofn.nMaxFile = MAX_PATH;
-	ofn.Flags = OFN_FILEMUSTEXIST;
-
-	if (::GetOpenFileName(&ofn) != FALSE) {
-		// ofn.lpstrFileTitle and it : the file anme only.
-		std::stringstream ss;
-		ss << ofn.lpstrFile;
-		return ss.str();
+	#include <commdlg.h>
+	inline std::string browse_file() {
+		OPENFILENAME ofn;
+		::memset(&ofn, 0, sizeof(ofn));
+		char f1[MAX_PATH];
+		f1[0] = 0;
+		ofn.lStructSize = sizeof(ofn);
+		ofn.lpstrTitle = "Select A File";
+		ofn.lpstrFilter = "All Files\0*.*\0Chip8Rom\0*.c8\0\0";
+		ofn.nFilterIndex = 2;
+		ofn.lpstrFile = f1;
+		ofn.nMaxFile = MAX_PATH;
+		ofn.Flags = OFN_FILEMUSTEXIST;
+	
+		if (::GetOpenFileName(&ofn) != FALSE) {
+			// ofn.lpstrFileTitle and it : the file anme only.
+			std::stringstream ss;
+			ss << ofn.lpstrFile;
+			return ss.str();
+		}
+		return "";
 	}
-	return "";
-}
 #else
-std::string browseFile() {
 	// TODO: impliment browse file for other platforms
-}
+	std::string browseFile() {
+		return "";
+	}
 #endif
 
 inline  void list_directory( const char* dirname)

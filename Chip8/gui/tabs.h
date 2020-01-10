@@ -6,6 +6,7 @@
 #include "conf.h"
 
 #include "Disassembler.h"
+#include "Emulator.h"
 
 class Tab
 {
@@ -32,17 +33,21 @@ public:
 class EmulatorTab : public Tab
 {
 public:
+
 	virtual void handleEvent(sf::Event& event);
 	virtual void process() override;
 	virtual void render(sf::RenderWindow& window) override;
 	virtual std::string getTitle() override { return std::string("Emulator (F2)"); }
 
 	void setGrid() { m_is_drawgrid = !m_is_drawgrid; }
-	void setPixel(unsigned int x, unsigned y, bool on = true) { /* todo: assert range */ m_pixels[y][x] = on; }
+	void setDispPixel(unsigned int x, unsigned y, bool on = true) { /* todo: assert range */
+		m_emulator.setDispPixel(x, y, on);
+	}
 private:
-	bool m_pixels[HEIGHT_PIX][WIDTH_PIX];
+	Emulator m_emulator;
+	unsigned int m_cursor_pos = 0;
+
 	unsigned int m_hex_cursor = 0;
-	unsigned char m_hex_bytes[ROM_SIZE] = {0};
 
 	void drawGrid(sf::RenderWindow& window);
 	sf::Vector2f getDispPosition();
@@ -67,8 +72,6 @@ class DisassemblerTab : public Tab
 public:
 	DisassemblerTab() {
 		m_disassembler.setBytesArray(m_bytes);
-		//for (int i = 0; i < ROM_SIZE; i++)
-		//	m_bytes[i] = i;	
 	}
 
 	virtual void handleEvent(sf::Event& event) override;
