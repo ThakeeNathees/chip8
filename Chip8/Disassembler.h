@@ -58,12 +58,12 @@ public:
 class Disassembler
 {
 private:
-	const unsigned char* m_bytes_array = NULL; // a pointer to bytes array
+	unsigned char* m_bytes_array = NULL; // a pointer to bytes array
 	unsigned int m_bytes_size = ROM_SIZE;
 	std::vector<Instruction> m_instructions;
 
 public:
-	void setBytesArray(const unsigned char* bytes_array) {
+	void setBytesArray(unsigned char* bytes_array) {
 		m_bytes_array = bytes_array;
 	}
 
@@ -97,105 +97,105 @@ public:
 			ins.type = InstructionType::SE_Vx;
 			ins.x = (byte & 0x0f00) >> 8;
 			ins.byte = byte & 0x00ff;
-			ins.to_string = std::string("SE   V").append(std::to_string(ins.x)).append(" 0x").append(std::to_string(ins.byte));
+			ins.to_string = std::string("SE   V").append(toHexString(ins.x, 1)).append(" 0x").append(toHexString(ins.byte, 2));
 		}
 
 		else if ((byte & 0xf000) == 0x4000) { // 4xkk - SNE Vx, byte
 			ins.type = InstructionType::SNE_Vx;
 			ins.x = (byte & 0x0f00) >> 8;
 			ins.byte = byte & 0x00ff;
-			ins.to_string = std::string("SNE  V") .append(std::to_string(ins.x)).append(" ").append( std::to_string(ins.byte) );
+			ins.to_string = std::string("SNE  V") .append(toHexString(ins.x, 1)).append(" 0x").append( toHexString(ins.byte, 2) );
 		}
 
 		else if ((byte & 0xf00f) == 0x5000) { // 5xy0 - SE Vx, Vy
-			ins.type = InstructionType::SNE_Vx_Vy;
+			ins.type = InstructionType::SE_Vx_Vy;
 			ins.x = (byte & 0x0f00) >> 8;
 			ins.y = (byte & 0x00f0) >> 4;
-			ins.to_string = std::string("SE   V").append(std::to_string(ins.x)).append(" V").append(std::to_string(ins.y));
+			ins.to_string = std::string("SE   V").append(toHexString(ins.x, 1)).append(" V").append(toHexString(ins.y, 1));
 		}
 
 		else if ((byte & 0xf000) == 0x6000) { // 6xkk - LD Vx, byte
 			ins.type = InstructionType::LD_Vx;
 			ins.x = (byte & 0x0f00) >> 8;
 			ins.byte = byte & 0x00ff;
-			ins.to_string = std::string("LD   V").append(std::to_string(ins.x)).append(" ").append(std::to_string(ins.byte));
+			ins.to_string = std::string("LD   V").append(toHexString(ins.x, 1)).append(" 0x").append(toHexString(ins.byte, 2));
 		}
 
 		else if ((byte & 0xf000) == 0x7000) { // 7xkk - ADD Vx, byte
 			ins.type = InstructionType::ADD_Vx;
 			ins.x = (byte & 0x0f00) >> 8;
 			ins.byte = byte & 0x00ff;
-			ins.to_string = std::string("ADD  V").append(std::to_string(ins.x)).append(" ").append(std::to_string(ins.byte));
+			ins.to_string = std::string("ADD  V").append(toHexString(ins.x, 1)).append(" 0x").append(toHexString(ins.byte, 2));
 		}
 
 		else if ((byte & 0xf00f) == 0x8000 ) { // 8xy0 - LD Vx, Vy
 			ins.type = InstructionType::LD_Vx_Vy;
 			ins.x = (byte & 0x0f00) >> 8;
 			ins.y = (byte & 0x00f0) >> 4;
-			ins.to_string = std::string("LD   V").append(std::to_string(ins.x)).append(" V").append(std::to_string(ins.y));
+			ins.to_string = std::string("LD   V").append(toHexString(ins.x, 1)).append(" V").append(toHexString(ins.y, 1));
 		}
 
 		else if ((byte & 0xf00f) == 0x8001 ) { // 8xy1 - OR Vx, Vy
 			ins.type = InstructionType::OR_Vx_Vy;
 			ins.x = (byte & 0x0f00) >> 8;
 			ins.y = (byte & 0x00f0) >> 4;
-			ins.to_string = std::string("OR   V").append(std::to_string(ins.x)).append(" V").append(std::to_string(ins.y));
+			ins.to_string = std::string("OR   V").append(toHexString(ins.x, 1)).append(" V").append(toHexString(ins.y, 1));
 		}
 
 		else if ((byte & 0xf00f) == 0x8002) { // 8xy2 - AND Vx, Vy
 			ins.type = InstructionType::AND_Vx_Vy;
 			ins.x = (byte & 0x0f00) >> 8;
 			ins.y = (byte & 0x00f0) >> 4;
-			ins.to_string = std::string("AND  V").append(std::to_string(ins.x)).append(" V").append(std::to_string(ins.y));
+			ins.to_string = std::string("AND  V").append(toHexString(ins.x, 1)).append(" V").append(toHexString(ins.y, 1));
 		}
 
 		else if ((byte & 0xf00f) == 0x8003) { // 8xy3 - XOR Vx, Vy
 			ins.type = InstructionType::XOR_Vx_Vy;
 			ins.x = (byte & 0x0f00) >> 8;
 			ins.y = (byte & 0x00f0) >> 4;
-			ins.to_string = std::string("XOR  V").append(std::to_string(ins.x)).append(" V").append(std::to_string(ins.y));
+			ins.to_string = std::string("XOR  V").append(toHexString(ins.x, 1)).append(" V").append(toHexString(ins.y, 1));
 		}
 
 		else if ((byte & 0xf00f) == 0x8004) { // 8xy4 - ADD Vx, Vy
 			ins.type = InstructionType::ADD_Vx_Vy;
 			ins.x = (byte & 0x0f00) >> 8;
 			ins.y = (byte & 0x00f0) >> 4;
-			ins.to_string = std::string("ADD  V").append(std::to_string(ins.x)).append(" V").append(std::to_string(ins.y));
+			ins.to_string = std::string("ADD  V").append(toHexString(ins.x, 1)).append(" V").append(toHexString(ins.y, 1));
 		}
 
 		else if ((byte & 0xf00f) == 0x8005) { // 8xy5 - SUB Vx, Vy
 			ins.type = InstructionType::SUB_Vx_Vy;
 			ins.x = (byte & 0x0f00) >> 8;
 			ins.y = (byte & 0x00f0) >> 4;
-			ins.to_string = std::string("SUB  V").append(std::to_string(ins.x)).append(" V").append(std::to_string(ins.y));
+			ins.to_string = std::string("SUB  V").append(toHexString(ins.x, 1)).append(" V").append(toHexString(ins.y, 1));
 		}
 
 		else if ((byte & 0xf00f) == 0x8006) { // 8xy6 - SHR Vx {, Vy}
 			ins.type = InstructionType::SHR_Vx;
 			ins.x = (byte & 0x0f00) >> 8;
 			ins.y = (byte & 0x00f0) >> 4;
-			ins.to_string = std::string("SHR  V").append(std::to_string(ins.x)).append(" V").append(std::to_string(ins.y));
+			ins.to_string = std::string("SHR  V").append(toHexString(ins.x, 1)).append(" V").append(toHexString(ins.y, 1));
 		}
 
 		else if ((byte & 0xf00f) == 0x8007) { // 8xy7 - SUBN Vx, Vy
 			ins.type = InstructionType::SUBN_Vx_Vy;
 			ins.x = (byte & 0x0f00) >> 8;
 			ins.y = (byte & 0x00f0) >> 4;
-			ins.to_string = std::string("SUBN V").append(std::to_string(ins.x)).append(" V").append(std::to_string(ins.y));
+			ins.to_string = std::string("SUBN V").append(toHexString(ins.x, 1)).append(" V").append(toHexString(ins.y, 1));
 		}
 
 		else if ((byte & 0xf00f) == 0x800E) { // 8xyE - SHL Vx {, Vy}
 			ins.type = InstructionType::SHL_Vx;
 			ins.x = (byte & 0x0f00) >> 8;
 			ins.y = (byte & 0x00f0) >> 4;
-			ins.to_string = std::string("SHL  V").append(std::to_string(ins.x));
+			ins.to_string = std::string("SHL  V").append(toHexString(ins.x, 1));
 		}
 
 		else if ((byte & 0xf00f) == 0x9000) { // 9xy0 - SNE Vx, Vy
 			ins.type = InstructionType::SNE_Vx_Vy;
 			ins.x = (byte & 0x0f00) >> 8;
 			ins.y = (byte & 0x00f0) >> 4;
-			ins.to_string = std::string("SNE  V").append(std::to_string(ins.x)).append(" V").append(std::to_string(ins.y));
+			ins.to_string = std::string("SNE  V").append(toHexString(ins.x, 1)).append(" V").append(toHexString(ins.y, 1));
 		}
 
 		else if ((byte & 0xf000) == 0xA000 ) { // Annn - LD I, addr
@@ -214,7 +214,7 @@ public:
 			ins.type = InstructionType::RND_Vx;
 			ins.x = (byte & 0x0f00) >> 8;
 			ins.byte = byte & 0x00ff;
-			ins.to_string = std::string("RND  V").append(std::to_string(ins.x)).append(" ").append(std::to_string(ins.byte));
+			ins.to_string = std::string("RND  V").append(toHexString(ins.x, 1)).append(" 0x").append(toHexString(ins.byte, 2));
 		}
 
 		else if ((byte & 0xf000) == 0xD000 ) { // Dxyn - DRW Vx, Vy, nibble
@@ -222,73 +222,73 @@ public:
 			ins.x = (byte & 0x0f00) >> 8;
 			ins.y = (byte & 0x00f0) >> 4;
 			ins.byte = byte & 0x000f;
-			ins.to_string = std::string("DRW  V").append(std::to_string(ins.x)).append(" V").append(std::to_string(ins.y)).append(" ").append(std::to_string(ins.byte));
+			ins.to_string = std::string("DRW  V").append(toHexString(ins.x, 1)).append(" V").append(toHexString(ins.y, 1)).append(" ").append(toHexString(ins.byte, 2));
 		}
 
 		else if ((byte & 0xf0ff) == 0xE09E ) { // Ex9E - SKP Vx
 			ins.type = InstructionType::SKP_Vx;
 			ins.x = (byte & 0x0f00) >> 8;
-			ins.to_string = std::string("SKP  V").append(std::to_string(ins.x));
+			ins.to_string = std::string("SKP  V").append(toHexString(ins.x, 1));
 		}
 
 		else if ((byte & 0xf0ff) == 0xE0A1 ) { // ExA1 - SKNP Vx
 			ins.type = InstructionType::SKNP_Vx;
 			ins.x = (byte & 0x0f00) >> 8;
-			ins.to_string = std::string("SNKP V").append(std::to_string(ins.x));
+			ins.to_string = std::string("SNKP V").append(toHexString(ins.x, 1));
 		}
 
 		else if ((byte & 0xf0ff) == 0xF007 ) { // Fx07 - LD Vx, DT
 			ins.type = InstructionType::LD_Vx_DT;
 			ins.x = (byte & 0x0f00) >> 8;
-			ins.to_string = std::string("LD   V").append(std::to_string(ins.x)).append(" DT");
+			ins.to_string = std::string("LD   V").append(toHexString(ins.x, 1)).append(" DT");
 		}
 
 		else if ((byte & 0xf0ff) == 0xF00A ) { // Fx0A - LD Vx, K
 			ins.type = InstructionType::LD_Vx_K;
 			ins.x = (byte & 0x0f00) >> 8;
-			ins.to_string = std::string("LD   V").append(std::to_string(ins.x)).append(" K");
+			ins.to_string = std::string("LD   V").append(toHexString(ins.x, 1)).append(" K");
 		}
 
 		else if ((byte & 0xf0ff) == 0xF015 ) { // Fx15 - LD DT, Vx
 			ins.type = InstructionType::LD_DT_Vx;
 			ins.x = (byte & 0x0f00) >> 8;
-			ins.to_string = std::string("LD   DT V").append(std::to_string(ins.x));
+			ins.to_string = std::string("LD   DT V").append(toHexString(ins.x, 1));
 		}
 
 		else if ((byte & 0xf0ff) == 0xF018 ) { // Fx18 - LD ST, Vx
 			ins.type = InstructionType::LD_ST_Vx;
 			ins.x = (byte & 0x0f00) >> 8;
-			ins.to_string = std::string("LD   ST V").append(std::to_string(ins.x));
+			ins.to_string = std::string("LD   ST V").append(toHexString(ins.x, 1));
 		}
 
 		else if ((byte & 0xf0ff) == 0xF01E ) { // Fx1E - ADD I, Vx
 			ins.type = InstructionType::ADD_I_Vx;
 			ins.x = (byte & 0x0f00) >> 8;
-			ins.to_string = std::string("ADD  I V").append(std::to_string(ins.x));
+			ins.to_string = std::string("ADD  I V").append(toHexString(ins.x, 1));
 		}
 
 		else if ((byte & 0xf0ff) == 0xF029 ) { // Fx29 - LD F, Vx
 			ins.type = InstructionType::LD_F_Vx;
 			ins.x = (byte & 0x0f00) >> 8;
-			ins.to_string = std::string("LD   F V").append(std::to_string(ins.x));
+			ins.to_string = std::string("LD   F V").append(toHexString(ins.x, 1));
 		}
 
 		else if ((byte & 0xf0ff) == 0xF033 ) { // Fx33 - LD B, Vx
 			ins.type = InstructionType::LD_B_Vx;
 			ins.x = (byte & 0x0f00) >> 8;
-			ins.to_string = std::string("LD   B V").append(std::to_string(ins.x));
+			ins.to_string = std::string("LD   B V").append(toHexString(ins.x, 1));
 		}
 
 		else if ((byte & 0xf0ff) == 0xF055 ) { // Fx55 - LD [I], Vx
 			ins.type = InstructionType::LD_I_Vx;
 			ins.x = (byte & 0x0f00) >> 8;
-			ins.to_string = std::string("LD   I V").append(std::to_string(ins.x));
+			ins.to_string = std::string("LD   I V").append(toHexString(ins.x, 1));
 		}
 
 		else if ((byte & 0xf0ff) == 0xF065 ) { // Fx65 - LD Vx, [I]
 			ins.type = InstructionType::LD_Vx_I;
 			ins.x = (byte & 0x0f00) >> 8;
-			ins.to_string = std::string("LD   V").append(std::to_string(ins.x)).append(" I");
+			ins.to_string = std::string("LD   V").append(toHexString(ins.x, 1)).append(" I");
 		}
 
 		else {

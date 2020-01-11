@@ -33,7 +33,6 @@ public:
 class EmulatorTab : public Tab
 {
 public:
-
 	virtual void handleEvent(sf::Event& event);
 	virtual void process() override;
 	virtual void render(sf::RenderWindow& window) override;
@@ -43,11 +42,12 @@ public:
 	void setDispPixel(unsigned int x, unsigned y, bool on = true) { /* todo: assert range */
 		m_emulator.setDispPixel(x, y, on);
 	}
+
+	unsigned char getV(unsigned char x) { return m_emulator.getV(x); }
 private:
 	Emulator m_emulator;
-	unsigned int m_cursor_pos = 0;
-
-	unsigned int m_hex_cursor = 0;
+	unsigned int m_cursor_pos = PROGRAMME_OFFSET;
+	unsigned int m_line_offset = PROGRAMME_OFFSET;
 
 	void drawGrid(sf::RenderWindow& window);
 	sf::Vector2f getDispPosition();
@@ -55,7 +55,9 @@ private:
 	sf::Vector2f getHexPosition();
 	sf::Vector2f getRegPosition();
 	void drawPixels(sf::RenderWindow& window);
-	bool m_is_drawgrid = true;
+	bool m_running = false;
+	int m_hz = 30;
+	bool m_is_drawgrid = false;
 };
 
 class AssemblerTab : public Tab
@@ -83,8 +85,8 @@ private:
 	std::string m_working_file = "";
 	std::string m_error_msg = "";
 	bool m_second_byte = false; // when press any key 0-9 a-f -> is the key first or second
-	unsigned int m_cursor_pos = 0;
-	unsigned int m_line_offset = 0;
+	unsigned int m_cursor_pos = PROGRAMME_OFFSET;
+	unsigned int m_line_offset = PROGRAMME_OFFSET / F4_HEX_BYTE_PER_LNE;
 	unsigned char m_bytes[ROM_SIZE] = {0};
 	Disassembler m_disassembler;
 
@@ -109,7 +111,7 @@ public:
 		m_tabs.push_back(assembler_tab);
 		m_tabs.push_back(disassembler_tab);
 
-		m_current_tab = 0;
+		m_current_tab = 1;
 	}
 
 	void handleEvent(sf::Event& event) {
@@ -137,7 +139,7 @@ public:
 	}
 
 	void process() {
-
+		getCurrentTab()->process();
 	}
 
 	void render(sf::RenderWindow& window) {

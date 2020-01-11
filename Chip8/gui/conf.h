@@ -2,6 +2,7 @@
 #include "include.h"
 
 #define ROM_SIZE 0x1000
+#define PROGRAMME_OFFSET 0x200
 
 #define FONT_PATH "res/font/west_england/west_england.ttf"
 //#define FONT_PATH "res/font/PressStart2P-Regular.ttf"
@@ -45,7 +46,8 @@ private:
 #define BG_COLOR sf::Color(32,42,52)
 
 #define DISPLAY_BG_COLOR  sf::Color(143, 143, 133)
-#define PIX_COLOR sf::Color::Black
+#define PIX_COLOR sf::Color(32,42,52)
+//sf::Color::Black
 #define DISPLAY_GRID_COLOR sf::Color::Black
 
 #define TAB_TITLE_COLOR sf::Color(200,200,200)
@@ -55,11 +57,15 @@ private:
 #define DISAS_LINE_COLOR sf::Color::White
 #define DISAS_SELECTED_LINE_COLOR sf::Color::Black
 
+#define F2_REGISTER_LINE_SPACE  MARGIN + 2*FONT_SIZE
+#define F2_STACK_LINE_SPACE 2*MARGIN + 5* FONT_SIZE
+
 #define F4_CURSOR_COLOR sf::Color::White
 #define F4_HELP_TEXT_COLOR sf::Color::White
 #define BYTES_COLOR sf::Color::White
 #define SELECTED_BYTE_COLOR sf::Color::Black
 
+#define EMULATOR_STATE_TEXT_COLOR sf::Color::White
 
 #define POPUP_BG_COLOR sf::Color(170, 170, 170, 50)
 #define CLOSE_BUTTON_COLOR sf::Color(230, 90, 90)
@@ -103,6 +109,8 @@ margin		++------------------------------------------++
 #define F2_DISAS_WIDTH 310
 #define F2_HEXDUMP_HEIGHT 200
 #define F2_HEX_BYTE_PER_LNE 0x08
+
+#define F2_PAGEUPDOWN_LINES 6
 
 #define F2_DISP_WIDTH  PIXEL_SIZE*WIDTH_PIX
 #define F2_DISP_HEIGHT PIXEL_SIZE*HEIGHT_PIX

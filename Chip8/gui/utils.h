@@ -41,8 +41,10 @@ inline void drawScrollBar(sf::RenderTarget& render_target, sf::Vector2f position
 
 inline float drawHexDump(sf::RenderWindow& window, sf::Vector2f draw_pos, const unsigned char bytes[], unsigned int bytes_per_line, float window_height, unsigned int cursor_pos = 0, unsigned int* line_offset = NULL)
 {
-	static unsigned int offset = 0;
-	if (line_offset == NULL) line_offset = &offset;
+	static unsigned int offset = PROGRAMME_OFFSET / F2_HEX_BYTE_PER_LNE;
+	if (line_offset == NULL) {
+		line_offset = &offset;
+	}
 	unsigned int line_spacing	= HEX_LINE_SPACEING;
 	sf::Color cursor_color		= F4_CURSOR_COLOR;
 	float byte_spacing			= HEX_BYTE_SPACEING;
@@ -102,23 +104,37 @@ inline float drawHexDump(sf::RenderWindow& window, sf::Vector2f draw_pos, const 
 }
 
 #include "Disassembler.h"
-inline float drawDisassembly(sf::RenderWindow& window, sf::Vector2f draw_pos, const std::vector<Instruction>& instructions, sf::Vector2f window_size, unsigned int cursor_pos) {
+inline float drawDisassembly(sf::RenderWindow& window, sf::Vector2f draw_pos, const std::vector<Instruction>& instructions, sf::Vector2f window_size, unsigned int cursor_pos, int pc = -1, unsigned int* line_offset_p = NULL) {
 
-	static unsigned int line_offset = 0;
+	// for disassembler line offset is null , emulator line offset is not
+	static unsigned int line_offset_s = PROGRAMME_OFFSET / 2;
+	unsigned int* line_offset;
+	if (line_offset_p != NULL) line_offset = line_offset_p;
+	else line_offset = &line_offset_s;
+
 	unsigned int lines = (window_size.y - 2 * FONT_SIZE) / (FONT_SIZE + DISAS_LINE_SPACING);
-	if (cursor_pos >= lines + line_offset) line_offset = cursor_pos - lines + 1;
-	if (cursor_pos < line_offset) line_offset = cursor_pos;
+	if (cursor_pos >= lines + *line_offset) *line_offset = cursor_pos - lines + 1;
+	if (cursor_pos < *line_offset) *line_offset = cursor_pos;
 	float scroll_p = (float)cursor_pos / (float)instructions.size();
 
 	sf::Vector2f pos = draw_pos + sf::Vector2f(MARGIN, MARGIN);
 	sf::RectangleShape cursor(sf::Vector2f(window_size.x - 4* MARGIN, FONT_SIZE));
 	cursor.setFillColor(DISAS_CURSOR_COLOR);
 
-	for (unsigned int i = line_offset; i < lines + line_offset; i++) {
+	for (unsigned int i = *line_offset; i < lines + *line_offset; i++) {
 
 		if (i == cursor_pos) { // draw cursor
 			cursor.setPosition(pos);
 			window.draw(cursor);
+		}
+
+		if (pc > 0 && i == pc) {
+			sf::RectangleShape pc_box(sf::Vector2f(window_size.x - 4 * MARGIN, FONT_SIZE));
+			pc_box.setFillColor(COLOR_NONE);
+			pc_box.setOutlineThickness(BORDER_SIZE);
+			pc_box.setOutlineColor(DISAS_CURSOR_COLOR);
+			pc_box.setPosition(pos);
+			window.draw(pc_box);
 		}
 
 		Res::setTextColor( (i == cursor_pos)? DISAS_SELECTED_LINE_COLOR :DISAS_LINE_COLOR);
