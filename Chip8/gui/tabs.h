@@ -48,6 +48,10 @@ private:
 	Emulator m_emulator;
 	unsigned int m_cursor_pos = PROGRAMME_OFFSET;
 	unsigned int m_line_offset = PROGRAMME_OFFSET;
+	bool m_running = false;
+	int m_hz = 30;
+	bool m_is_drawgrid = false;
+	std::set<unsigned int> m_break_points;
 
 	void drawGrid(sf::RenderWindow& window);
 	sf::Vector2f getDispPosition();
@@ -55,9 +59,6 @@ private:
 	sf::Vector2f getHexPosition();
 	sf::Vector2f getRegPosition();
 	void drawPixels(sf::RenderWindow& window);
-	bool m_running = false;
-	int m_hz = 30;
-	bool m_is_drawgrid = false;
 };
 
 class AssemblerTab : public Tab
@@ -148,6 +149,7 @@ public:
 		drawHorizontalLine(window);
 		drawTabTitle(window);
 		getCurrentTab()->render(window);
+
 	}
 
 	void setTab(unsigned int tab_no) {

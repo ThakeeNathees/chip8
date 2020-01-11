@@ -25,13 +25,15 @@ int main()
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Chip8", sf::Style::Titlebar | sf::Style::Close);
 	window.setFramerateLimit(120);
 
+
 	TabView tab_view;
+
 	while (window.isOpen())
 	{
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
-			if (window.hasFocus())
+			//if (window.hasFocus())
 				tab_view.handleEvent(event);
 			if (event.type == sf::Event::Closed)
 				window.close();
@@ -40,7 +42,6 @@ int main()
 
 		tab_view.render(window);
 
-		// tab_view.getEmulatorTab()->setDispPixel( rand()%64, rand() % 32, rand() % 2);
 
 		window.display();
 	}

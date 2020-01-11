@@ -45,6 +45,8 @@ private:
 #define BORDER_COLOR sf::Color(70, 80, 100)
 #define BG_COLOR sf::Color(32,42,52)
 
+#define COLOR_BREAK_POINT_BG sf::Color(240, 100, 100)
+
 #define DISPLAY_BG_COLOR  sf::Color(143, 143, 133)
 #define PIX_COLOR sf::Color(32,42,52)
 //sf::Color::Black

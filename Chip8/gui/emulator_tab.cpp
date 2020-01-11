@@ -47,7 +47,7 @@ void EmulatorTab::handleEvent(sf::Event& event) {
 		}
 
 		// clock speed 
-		static int speeds[] = { 3, 5, 10, 15, 30, 60, 120, 240, 480, 960 };
+		static int speeds[] = { 3, 5, 10, 15, 30, 60, 120, 240, 480, 960, 2000, 4000 };
 		static int speed_p = 4;
 		if (event.key.code == sf::Keyboard::Equal) {
 			if (speed_p < sizeof(speeds)/sizeof(int) - 1)
@@ -60,17 +60,34 @@ void EmulatorTab::handleEvent(sf::Event& event) {
 		}
 
 		// if enter step
-		if (event.key.code == sf::Keyboard::Enter) {
+		if (event.key.code == sf::Keyboard::Enter || event.key.code == sf::Keyboard::F7) {
 			m_cursor_pos  = m_emulator.step();
+		}
+
+		// b - break point
+		if (event.key.code == sf::Keyboard::B) {
+			auto pos  = m_break_points.find(m_cursor_pos);
+			if (pos != m_break_points.end()) {
+				m_break_points.erase(m_cursor_pos);
+			}
+			else  m_break_points.insert(m_cursor_pos);
+		}
+
+		// n - clear break points
+		if (event.key.code == sf::Keyboard::N) {
+			m_break_points.clear();
 		}
 
 		// if F5 run
 		if (event.key.code == sf::Keyboard::F5) {
+			if (! m_running)
+				m_cursor_pos = m_emulator.step(); // for passing break point
 			m_running = !m_running;
 		}
 
 		// restart
-		if (event.key.code == sf::Keyboard::R) {
+		if (event.key.code == sf::Keyboard::T) {
+			m_running = false;
 			m_cursor_pos = m_emulator.restart();
 		}
 		
@@ -93,6 +110,7 @@ void EmulatorTab::handleEvent(sf::Event& event) {
 					}
 
 					m_cursor_pos = m_emulator.restart();
+					m_break_points.clear();
 					m_emulator.disassemble();
 					m_running = false;
 				}
@@ -109,6 +127,12 @@ void EmulatorTab::process() {
 	if (process_clock.getElapsedTime().asSeconds() > 1/float(m_hz) ) {
 		process_clock.restart();
 		if (m_running) {
+			for (unsigned int b : m_break_points) {
+				if (b == m_emulator.getPc()) {
+					m_running = false;
+					return;
+				}
+			}
 			m_cursor_pos = m_emulator.step();
 		}
 	}
@@ -128,9 +152,10 @@ void EmulatorTab::render(sf::RenderWindow& window) {
 	drawPixels(window);
 	if (m_is_drawgrid) drawGrid(window);
 
+
 	// disas
 	drawBorder(window, getDisasPosition(), sf::Vector2f(F2_DISAS_WIDTH, F2_DISAS_HEIGHT));
-	float scroll_disas = drawDisassembly(window, getDisasPosition(), m_emulator.getInstructions(), sf::Vector2f(F2_DISAS_WIDTH, F2_DISAS_HEIGHT), m_cursor_pos / 2, m_emulator.getPc()/2, &m_line_offset);
+	float scroll_disas = drawDisassembly(window, getDisasPosition(), m_emulator.getInstructions(), sf::Vector2f(F2_DISAS_WIDTH, F2_DISAS_HEIGHT), m_cursor_pos / 2, m_emulator.getPc()/2, &m_line_offset, &m_break_points);
 	drawScrollBar(window, getDisasPosition() + sf::Vector2f(F2_DISAS_WIDTH, 0), F2_DISAS_HEIGHT, scroll_disas);
 
 

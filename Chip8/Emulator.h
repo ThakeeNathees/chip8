@@ -255,7 +255,7 @@ public:
 			// The values of Vx and Vy are added together. If the result is greater than 8 bits (i.e., > 255,) 
 			// VF is set to 1, otherwise 0. Only the lowest 8 bits of the result are kept, and stored in Vx.
 			unsigned char vx = m_V[ins.x], vy = m_V[ins.y];
-			m_V[vx] =  vx + vy;
+			m_V[ins.x] =  vx + vy;
 			m_V[0xf] = (vx + vy > 0xff) ? 1 : 0;
 			m_pc += ONE_INSTRUCTION;
 		}
@@ -263,7 +263,7 @@ public:
 			// If Vx > Vy, then VF is set to 1, otherwise 0. Then Vy is subtracted from Vx, and the results stored in Vx.
 			unsigned char vx = m_V[ins.x], vy = m_V[ins.y];
 			m_V[0xf] = (vx > vy) ? 1 : 0;
-			m_V[vx] = vx - vy;
+			m_V[ins.x] = vx - vy;
 			m_pc += ONE_INSTRUCTION;
 		}
 		else if (ins.type == InstructionType::SHR_Vx) { // Set Vx = Vx SHR 1.
@@ -278,7 +278,7 @@ public:
 			// If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted from Vy, and the results stored in Vx.
 			unsigned char vx = m_V[ins.x], vy = m_V[ins.y];
 			m_V[0xf] = (vy > vx) ? 1 : 0;
-			m_V[vx] = vy - vx;
+			m_V[ins.x] = vy - vx;
 			m_pc += ONE_INSTRUCTION;
 
 		}
@@ -323,7 +323,7 @@ public:
 				unsigned char spr = m_rom[m_I+h];
 				for (unsigned int w = 0; w < 0x8; w++) {
 					bool bit = ( ( spr & (1 << 0x7 - w)) ) >> (0x7 - w) == 1;
-					if (m_pixels[vy+h][vx+w] == 1 && bit == 0) m_V[0xf] = 1; // set collision true
+					if (m_pixels[vy+h][vx+w] == 1 && bit == 1) m_V[0xf] = 1; // set collision true
 					m_pixels[vy+h][vx+w] ^= bit;
 				}
 			}
@@ -388,14 +388,14 @@ public:
 		} 
 		else if (ins.type == InstructionType::LD_I_Vx) { // Store registers V0 through Vx in memory starting at location I.
 			// The interpreter copies the values of registers V0 through Vx into memory, starting at the address in I.
-			for (unsigned char x = 0; x < 0x10; x++) {
+			for (unsigned char x = 0; x <= ins.x; x++) {
 				m_rom[m_I + x] = m_V[x];
 			}
 			m_pc += ONE_INSTRUCTION;
 		}
 		else if (ins.type == InstructionType::LD_Vx_I) { // Read registers V0 through Vx from memory starting at location I.
 			// The interpreter reads values from memory starting at location I into registers V0 through Vx.
-			for (unsigned char x = 0; x < 0x10; x++) {
+			for (unsigned char x = 0; x <= ins.x; x++) {
 				m_V[x] = m_rom[m_I + x];
 			}
 			m_pc += ONE_INSTRUCTION;
@@ -409,7 +409,7 @@ private:
 	unsigned char m_V[0x10] = { 0 };  // 8 bit Vx registers V0 - VF
 	unsigned char m_dt, m_st;		// delay timer, sound timer
 	unsigned short m_I = 0x000;		// 16 bit address register
-	unsigned short m_pc = 0x000;	// 16 bit programme counter
+	unsigned short m_pc = PROGRAMME_OFFSET;	// 16 bit programme counter
 
 	unsigned short m_stack[0x10];	// 16 16 bit array of stack
 	unsigned char m_sp = 0;			// 8 bit stack pointer

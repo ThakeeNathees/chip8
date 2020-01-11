@@ -104,7 +104,7 @@ inline float drawHexDump(sf::RenderWindow& window, sf::Vector2f draw_pos, const 
 }
 
 #include "Disassembler.h"
-inline float drawDisassembly(sf::RenderWindow& window, sf::Vector2f draw_pos, const std::vector<Instruction>& instructions, sf::Vector2f window_size, unsigned int cursor_pos, int pc = -1, unsigned int* line_offset_p = NULL) {
+inline float drawDisassembly(sf::RenderWindow& window, sf::Vector2f draw_pos, const std::vector<Instruction>& instructions, sf::Vector2f window_size, unsigned int cursor_pos, int pc = -1, unsigned int* line_offset_p = NULL, std::set<unsigned int>* break_points= NULL) {
 
 	// for disassembler line offset is null , emulator line offset is not
 	static unsigned int line_offset_s = PROGRAMME_OFFSET / 2;
@@ -136,8 +136,24 @@ inline float drawDisassembly(sf::RenderWindow& window, sf::Vector2f draw_pos, co
 			pc_box.setPosition(pos);
 			window.draw(pc_box);
 		}
+		Res::setTextColor((i == cursor_pos) ? DISAS_SELECTED_LINE_COLOR : DISAS_LINE_COLOR);
 
-		Res::setTextColor( (i == cursor_pos)? DISAS_SELECTED_LINE_COLOR :DISAS_LINE_COLOR);
+		if (break_points != NULL) {
+			for (unsigned int b : *break_points) {
+				if (b/2 == i) {
+					sf::RectangleShape b_box(sf::Vector2f(window_size.x - 4 * MARGIN, FONT_SIZE));
+					b_box.setFillColor(COLOR_BREAK_POINT_BG);
+					if (i == cursor_pos) {
+						b_box.setOutlineThickness(BORDER_SIZE);
+						b_box.setOutlineColor(DISAS_CURSOR_COLOR);
+					}
+					b_box.setPosition(pos);
+					window.draw(b_box);
+					Res::setTextColor(DISAS_SELECTED_LINE_COLOR);
+				}
+			}
+		}
+
 		//draw address
 		Res::setTextString( std::string("0x").append(toHexString(i*2, 3)) );
 		Res::setTextPosition(pos);
