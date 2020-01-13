@@ -23,9 +23,9 @@ protected:
 class HelpTab : public Tab
 {
 public:
-	virtual void handleEvent(sf::Event& event) override {}
-	virtual void process() override {};
-	virtual void render(sf::RenderWindow& window) override {}
+	virtual void handleEvent(sf::Event& event) override;
+	virtual void process() override;
+	virtual void render(sf::RenderWindow& window) override;
 	virtual std::string getTitle() override { return std::string("Help (F1)"); }
 
 };
@@ -64,9 +64,9 @@ private:
 class AssemblerTab : public Tab
 {
 public:
-	virtual void handleEvent(sf::Event& event) override {}
-	virtual void process() override {}
-	virtual void render(sf::RenderWindow& window) override {}
+	virtual void handleEvent(sf::Event& event) override;
+	virtual void process() override;
+	virtual void render(sf::RenderWindow& window) override;
 	virtual std::string getTitle() override { return std::string("Assembler (F3)"); }
 };
 
