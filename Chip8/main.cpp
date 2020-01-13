@@ -3,14 +3,6 @@
 
 #include "gui/tabs.h"
 
-// TODO:
-// instruction test
-// cpu speed hz
-// debug break
-
-// F1 , //TODO:
-
-
 
 // static fields
 sf::Font Res::s_font;
@@ -27,6 +19,10 @@ int main()
 
 
 	TabView tab_view;
+
+#ifdef _WIN32
+	ShowWindow(GetConsoleWindow(), SW_HIDE); //SW_RESTORE to bring back
+#endif
 
 	while (window.isOpen())
 	{

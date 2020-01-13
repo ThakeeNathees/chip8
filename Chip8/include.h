@@ -32,6 +32,8 @@ inline std::string toHexString(unsigned int value, unsigned int fill = 2) {
 
 
 #ifdef _WIN32
+	#define NOMINMAX
+	#include <windows.h>
 	#include <commdlg.h>
 	inline std::string browse_file() {
 		OPENFILENAME ofn;
